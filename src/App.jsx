@@ -418,6 +418,77 @@ const ShuffleIcon = () => (
     <line x1="4" y1="4" x2="9" y2="9" />
   </svg>
 );
+const SpeakerIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+  </svg>
+);
+const LoadingIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" opacity="0.25" />
+    <path d="M12 2a10 10 0 0 1 10 10" className="spinner-path" />
+  </svg>
+);
+
+const ttsCache = new Map();
+
+function TtsButton({ text }) {
+  const [loading, setLoading] = useState(false);
+
+  const play = async () => {
+    if (loading) return;
+
+    let blobUrl = ttsCache.get(text);
+    if (!blobUrl) {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        if (!res.ok) throw new Error("TTS failed");
+        const blob = await res.blob();
+        blobUrl = URL.createObjectURL(blob);
+        ttsCache.set(text, blobUrl);
+      } catch (err) {
+        console.error("TTS error:", err);
+        setLoading(false);
+        return;
+      }
+      setLoading(false);
+    }
+
+    const audio = new Audio(blobUrl);
+    audio.play();
+  };
+
+  return (
+    <button
+      className="btn btn-ghost btn-sm"
+      onClick={(e) => {
+        e.stopPropagation();
+        play();
+      }}
+      style={{ padding: "4px 6px", minWidth: 0 }}
+      title="Escuchar"
+    >
+      {loading ? <LoadingIcon /> : <SpeakerIcon />}
+    </button>
+  );
+}
+
 const ChevronIcon = ({ down }) => (
   <svg
     width="16"
@@ -711,37 +782,49 @@ export default function App() {
             </div>
 
             {prompt?.type === "topic" && (
-              <p
-                style={{
-                  fontSize: 18,
-                  fontWeight: 500,
-                  lineHeight: 1.4,
-                  color: "var(--text-primary)",
-                }}
-              >
-                {prompt.text}
-              </p>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <p
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 500,
+                    lineHeight: 1.4,
+                    color: "var(--text-primary)",
+                    flex: 1,
+                  }}
+                >
+                  {prompt.text}
+                </p>
+                <TtsButton text={prompt.text} />
+              </div>
             )}
 
             {prompt?.type === "chunk" && chunkCat && (
               <div>
                 {chunkCat.items.map((item, i) => (
-                  <div key={i} className="chunk-item" onClick={() => toggleEn(i)}>
-                    <p style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)" }}>
-                      {item.es}
-                    </p>
-                    {showEn[i] && (
-                      <p
-                        style={{
-                          fontSize: 13,
-                          color: "var(--text-muted)",
-                          marginTop: 4,
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {item.en}
+                  <div
+                    key={i}
+                    className="chunk-item"
+                    onClick={() => toggleEn(i)}
+                    style={{ display: "flex", alignItems: "flex-start", gap: 8 }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)" }}>
+                        {item.es}
                       </p>
-                    )}
+                      {showEn[i] && (
+                        <p
+                          style={{
+                            fontSize: 13,
+                            color: "var(--text-muted)",
+                            marginTop: 4,
+                            fontStyle: "italic",
+                          }}
+                        >
+                          {item.en}
+                        </p>
+                      )}
+                    </div>
+                    <TtsButton text={item.es} />
                   </div>
                 ))}
                 <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 8 }}>
