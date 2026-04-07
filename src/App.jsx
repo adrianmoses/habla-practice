@@ -3,145 +3,145 @@ import { uploadRecording } from "./lib/api.js";
 
 const TOPICS = [
   {
-    cat: "Everyday Life",
+    cat: "Vida Cotidiana",
     items: [
-      "How you make your morning coffee or tea",
-      "What your neighborhood looks like",
-      "Your typical weekday routine",
-      "How to do laundry from start to finish",
-      "What's in your fridge right now and why",
-      "How you get to work or school",
-      "Your favorite meal to cook and how you make it",
-      "What you do to relax after a long day",
-      "How you organize your phone apps",
-      "Your weekend routine versus your weekday routine",
+      "Cómo preparas tu café o té por la mañana",
+      "Cómo es tu barrio",
+      "Tu rutina típica de lunes a viernes",
+      "Cómo se lava la ropa de principio a fin",
+      "Qué hay en tu nevera ahora mismo y por qué",
+      "Cómo llegas al trabajo o a la escuela",
+      "Tu comida favorita para cocinar y cómo la preparas",
+      "Qué haces para relajarte después de un día largo",
+      "Cómo organizas las apps de tu teléfono",
+      "Tu rutina del fin de semana versus la de entre semana",
     ],
   },
   {
-    cat: "People & Relationships",
+    cat: "Personas y Relaciones",
     items: [
-      "Describe your best friend's personality",
-      "What makes a good neighbor",
-      "How you met someone important in your life",
-      "What your family dynamic is like",
-      "The difference between a good boss and a bad boss",
-      "How friendships change as you get older",
-      "Describe someone you admire and why",
-      "What you look for in a travel companion",
-      "How people in your culture greet each other",
-      "The funniest person you know and what makes them funny",
+      "Describe la personalidad de tu mejor amigo/a",
+      "Qué hace a un buen vecino",
+      "Cómo conociste a alguien importante en tu vida",
+      "Cómo es la dinámica de tu familia",
+      "La diferencia entre un buen jefe y uno malo",
+      "Cómo cambian las amistades con la edad",
+      "Describe a alguien que admiras y por qué",
+      "Qué buscas en un compañero de viaje",
+      "Cómo se saluda la gente en tu cultura",
+      "La persona más graciosa que conoces y qué la hace graciosa",
     ],
   },
   {
-    cat: "How Things Work",
+    cat: "Cómo Funcionan las Cosas",
     items: [
-      "How a refrigerator keeps food cold",
-      "Why the sky changes color at sunset",
-      "How a search engine finds results",
-      "Why we dream when we sleep",
-      "How a bicycle stays balanced",
-      "What happens when you catch a cold",
-      "How plants turn sunlight into food",
-      "Why some things float and others sink",
-      "How a microwave heats food",
-      "What WiFi actually is",
+      "Cómo mantiene fría la comida un refrigerador",
+      "Por qué el cielo cambia de color al atardecer",
+      "Cómo encuentra resultados un buscador",
+      "Por qué soñamos cuando dormimos",
+      "Cómo se mantiene en equilibrio una bicicleta",
+      "Qué pasa cuando te resfrías",
+      "Cómo las plantas convierten la luz solar en alimento",
+      "Por qué algunas cosas flotan y otras se hunden",
+      "Cómo calienta la comida un microondas",
+      "Qué es realmente el WiFi",
     ],
   },
   {
-    cat: "Opinions",
+    cat: "Opiniones",
     items: [
-      "The best season of the year and why",
-      "City vs countryside living",
-      "Your favorite type of music and why",
-      "Cooking at home vs eating out",
-      "The most overrated thing in popular culture",
-      "Morning vs night productivity",
-      "Your unpopular opinion about food",
-      "Social media: more good or harm?",
-      "The ideal age to learn a second language",
-      "Pets or no pets?",
+      "La mejor estación del año y por qué",
+      "Vivir en la ciudad versus en el campo",
+      "Tu tipo de música favorito y por qué",
+      "Cocinar en casa versus comer fuera",
+      "Lo más sobrevalorado de la cultura popular",
+      "Productividad por la mañana versus por la noche",
+      "Tu opinión impopular sobre la comida",
+      "Redes sociales: ¿más beneficio o más daño?",
+      "La edad ideal para aprender un segundo idioma",
+      "¿Mascotas sí o mascotas no?",
     ],
   },
   {
-    cat: "Describe & Compare",
+    cat: "Describir y Comparar",
     items: [
-      "Your country's weather vs Spain's",
-      "Compare two cities you've visited",
-      "A book vs its movie adaptation",
-      "How you studied as a teen vs now",
-      "Being busy vs being productive",
-      "Compare two sports you know",
-      "Your life five years ago vs now",
-      "Being alone vs being lonely",
-      "Compare two holidays you enjoy",
-      "Talent vs hard work",
+      "El clima de tu país versus el de España",
+      "Compara dos ciudades que hayas visitado",
+      "Un libro versus su adaptación al cine",
+      "Cómo estudiabas de adolescente versus ahora",
+      "Estar ocupado versus ser productivo",
+      "Compara dos deportes que conozcas",
+      "Tu vida hace cinco años versus ahora",
+      "Estar solo versus sentirse solo",
+      "Compara dos días festivos que te gusten",
+      "Talento versus esfuerzo",
     ],
   },
   {
-    cat: "Hypothetical",
+    cat: "Hipotéticos",
     items: [
-      "What you'd do with an extra hour daily",
-      "If you could live in any historical period",
-      "Your perfect no-budget vacation",
-      "If you had to teach a class on anything",
-      "What you'd change about your city",
-      "Dinner with anyone alive — who?",
-      "Explain your job to a child",
-      "Instantly master one skill — which?",
-      "The world in 50 years",
-      "Redesign the school system",
+      "Qué harías con una hora extra al día",
+      "Si pudieras vivir en cualquier época histórica",
+      "Tus vacaciones perfectas sin límite de presupuesto",
+      "Si tuvieras que dar una clase sobre cualquier tema",
+      "Qué cambiarías de tu ciudad",
+      "Cenar con cualquier persona viva — ¿con quién?",
+      "Explica tu trabajo a un niño",
+      "Dominar una habilidad al instante — ¿cuál?",
+      "El mundo dentro de 50 años",
+      "Rediseñar el sistema educativo",
     ],
   },
   {
-    cat: "Culture & Society",
+    cat: "Cultura y Sociedad",
     items: [
-      "A tradition from your culture",
-      "How holidays are celebrated where you're from",
-      "Why people travel",
-      "The role of music in daily life",
-      "How fashion has changed in your lifetime",
-      "What makes a city feel alive",
-      "Local markets vs big stores",
-      "How humor differs across cultures",
-      "Food bringing people together",
-      "Why people are nostalgic",
+      "Una tradición de tu cultura",
+      "Cómo se celebran las fiestas en tu país",
+      "Por qué la gente viaja",
+      "El papel de la música en la vida diaria",
+      "Cómo ha cambiado la moda en tu vida",
+      "Qué hace que una ciudad se sienta viva",
+      "Mercados locales versus grandes tiendas",
+      "Cómo varía el humor entre culturas",
+      "La comida como forma de unir a la gente",
+      "Por qué la gente siente nostalgia",
     ],
   },
   {
-    cat: "Storytelling",
+    cat: "Narrativa",
     items: [
-      "The last dream you remember",
-      "A time you got completely lost",
-      "The most memorable meal you've had",
-      "A creative problem-solving moment",
-      "Your most embarrassing moment",
-      "A trip that didn't go as planned",
-      "First time trying something scary",
-      "A moment that changed your perspective",
-      "The strangest coincidence you've had",
-      "Communicating without a shared language",
+      "El último sueño que recuerdas",
+      "Una vez que te perdiste por completo",
+      "La comida más memorable que has tenido",
+      "Un momento en que resolviste un problema de forma creativa",
+      "Tu momento más vergonzoso",
+      "Un viaje que no salió como esperabas",
+      "La primera vez que intentaste algo que daba miedo",
+      "Un momento que cambió tu perspectiva",
+      "La coincidencia más extraña que te ha pasado",
+      "Comunicarte sin un idioma en común",
     ],
   },
   {
-    cat: "Abstract",
+    cat: "Abstracto",
     items: [
-      "What it means to be brave",
-      "Whether people can truly change",
-      "What makes something beautiful",
-      "Knowledge vs wisdom",
-      "Why time feels faster with age",
-      "What success means to you",
-      "Are rules necessary for freedom?",
-      "What makes a memory stick?",
-      "Language and thought",
-      "Happiness: choice or circumstance?",
+      "Qué significa ser valiente",
+      "Si las personas realmente pueden cambiar",
+      "Qué hace que algo sea bello",
+      "Conocimiento versus sabiduría",
+      "Por qué el tiempo pasa más rápido con la edad",
+      "Qué significa el éxito para ti",
+      "¿Son necesarias las reglas para la libertad?",
+      "¿Qué hace que un recuerdo perdure?",
+      "El lenguaje y el pensamiento",
+      "Felicidad: ¿elección o circunstancia?",
     ],
   },
 ];
 
 const CHUNKS = [
   {
-    cat: "Programming",
+    cat: "Programación",
     items: [
       { es: "Estoy depurando el código", en: "I'm debugging the code" },
       { es: "He encontrado un error / un bug", en: "I've found an error / a bug" },
@@ -156,7 +156,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Brushing Teeth",
+    cat: "Lavarse los Dientes",
     items: [
       { es: "Voy a lavarme los dientes", en: "I'm going to brush my teeth" },
       { es: "Pongo pasta de dientes en el cepillo", en: "I put toothpaste on the brush" },
@@ -166,7 +166,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Meditation",
+    cat: "Meditación",
     items: [
       { es: "Voy a meditar un rato", en: "I'm going to meditate for a bit" },
       { es: "Me siento con la espalda recta", en: "I sit with my back straight" },
@@ -178,7 +178,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Lifting Weights",
+    cat: "Levantar Pesas",
     items: [
       { es: "Voy a hacer pesas", en: "I'm going to lift weights" },
       { es: "Hoy toca tren superior / tren inferior", en: "Today is upper body / lower body" },
@@ -196,7 +196,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Food Prep",
+    cat: "Preparar Comida",
     items: [
       { es: "Voy a picar la cebolla en trocitos", en: "I'm going to dice the onion" },
       { es: "Pico el ajo bien fino", en: "I mince the garlic" },
@@ -208,7 +208,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Preparing Coffee",
+    cat: "Preparar Café",
     items: [
       { es: "Voy a poner café", en: "I'm going to make coffee" },
       { es: "Muelo los granos de café", en: "I grind the coffee beans" },
@@ -219,7 +219,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Emails & Messages",
+    cat: "Correos y Mensajes",
     items: [
       { es: "Estoy redactando un correo", en: "I'm drafting an email" },
       { es: "Le doy a enviar", en: "I hit send" },
@@ -230,7 +230,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Clothes",
+    cat: "Ropa",
     items: [
       { es: "Me cambio de ropa", en: "I change clothes" },
       { es: "Doblo la ropa recién lavada", en: "I fold the freshly washed clothes" },
@@ -241,7 +241,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Cleaning",
+    cat: "Limpieza",
     items: [
       { es: "Voy a barrer el suelo", en: "I'm going to sweep the floor" },
       { es: "Paso la fregona", en: "I mop the floor" },
@@ -253,7 +253,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Maintenance",
+    cat: "Mantenimiento",
     items: [
       { es: "Se ha roto la caldera", en: "The boiler has broken down" },
       { es: "Hay una fuga de agua en el baño", en: "There's a water leak in the bathroom" },
@@ -264,7 +264,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Directions",
+    cat: "Direcciones",
     items: [
       { es: "Sigue todo recto", en: "Go straight ahead" },
       { es: "Gira a la derecha / a la izquierda", en: "Turn right / left" },
@@ -274,7 +274,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Food Order",
+    cat: "Pedir Comida",
     items: [
       { es: "Perdona, ¿puedo cambiar el pedido?", en: "Excuse me, can I change my order?" },
       { es: "Al final prefiero el otro plato", en: "Actually I'd prefer the other dish" },
@@ -287,7 +287,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Walking the City",
+    cat: "Pasear por la Ciudad",
     items: [
       { es: "Estoy paseando por el centro", en: "I'm walking through the city center" },
       { es: "Busco una terraza para sentarme", en: "I'm looking for an outdoor café" },
@@ -297,7 +297,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Doctor",
+    cat: "Médico",
     items: [
       { es: "Vengo porque me encuentro mal", en: "I'm here because I'm not feeling well" },
       { es: "Me duele aquí al presionar", en: "It hurts here when I press" },
@@ -309,7 +309,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Tax Advisor",
+    cat: "Asesor Fiscal",
     items: [
       {
         es: "Tengo que hacer la declaración de la renta",
@@ -323,7 +323,7 @@ const CHUNKS = [
     ],
   },
   {
-    cat: "Software Presentation",
+    cat: "Presentación de Software",
     items: [
       {
         es: "Os voy a enseñar cómo funciona la plataforma",
@@ -435,9 +435,9 @@ const ChevronIcon = ({ down }) => (
 );
 
 const RATINGS = [
-  { label: "Struggled", emoji: "😤", color: "#e85d4a" },
-  { label: "Okay", emoji: "🤔", color: "#e8a84a" },
-  { label: "Felt easy", emoji: "😎", color: "#4aae6a" },
+  { label: "Me costó", emoji: "😤", color: "#e85d4a" },
+  { label: "Más o menos", emoji: "🤔", color: "#e8a84a" },
+  { label: "Me salió bien", emoji: "😎", color: "#4aae6a" },
 ];
 
 export default function App() {
@@ -512,7 +512,7 @@ export default function App() {
         setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
       }, 500);
     } catch {
-      alert("Microphone access is needed to record.");
+      alert("Se necesita acceso al micrófono para grabar.");
     }
   };
 
@@ -596,7 +596,7 @@ export default function App() {
           color: "var(--text-secondary, #888)",
         }}
       >
-        Loading...
+        Cargando...
       </div>
     );
 
@@ -626,7 +626,7 @@ export default function App() {
             <span style={{ color: "var(--text-muted)", fontWeight: 300 }}>.practice</span>
           </h1>
           <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
-            Activate your Spanish vocabulary
+            Activa tu vocabulario en español
           </p>
         </div>
         <div style={{ textAlign: "right" }}>
@@ -641,7 +641,7 @@ export default function App() {
               letterSpacing: 0.5,
             }}
           >
-            day streak
+            racha de días
           </div>
         </div>
       </div>
@@ -652,16 +652,16 @@ export default function App() {
           className={`tab ${view === "practice" ? "active" : ""}`}
           onClick={() => setView("practice")}
         >
-          Practice
+          Practicar
         </button>
         <button
           className={`tab ${view === "browse" ? "active" : ""}`}
           onClick={() => setView("browse")}
         >
-          Browse
+          Explorar
         </button>
         <button className={`tab ${view === "log" ? "active" : ""}`} onClick={() => setView("log")}>
-          Progress
+          Progreso
         </button>
       </div>
 
@@ -677,7 +677,7 @@ export default function App() {
                 setPrompt(null);
               }}
             >
-              Explain It Simply
+              Explica con Tus Palabras
             </button>
             <button
               className={`btn btn-sm ${mode === "chunks" ? "btn-accent" : "btn-ghost"}`}
@@ -686,7 +686,7 @@ export default function App() {
                 setPrompt(null);
               }}
             >
-              Chunk Drill
+              Frases Clave
             </button>
           </div>
 
@@ -706,7 +706,7 @@ export default function App() {
                 onClick={randomPrompt}
                 style={{ padding: "5px 10px" }}
               >
-                <ShuffleIcon /> New
+                <ShuffleIcon /> Nuevo
               </button>
             </div>
 
@@ -745,7 +745,7 @@ export default function App() {
                   </div>
                 ))}
                 <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 8 }}>
-                  Tap a phrase to reveal its English translation
+                  Toca una frase para ver la traducción
                 </p>
               </div>
             )}
@@ -768,7 +768,7 @@ export default function App() {
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               {!recording && !audioUrl && (
                 <button className="btn btn-accent" onClick={startRec}>
-                  <MicIcon /> Start Recording
+                  <MicIcon /> Grabar
                 </button>
               )}
               {recording && (
@@ -777,12 +777,12 @@ export default function App() {
                   style={{ background: "var(--danger)", color: "#fff" }}
                   onClick={stopRec}
                 >
-                  <StopIcon /> Stop
+                  <StopIcon /> Detener
                 </button>
               )}
               {audioUrl && (
                 <button className="btn btn-ghost" onClick={togglePlay}>
-                  {playing ? <PauseIcon /> : <PlayIcon />} {playing ? "Pause" : "Play back"}
+                  {playing ? <PauseIcon /> : <PlayIcon />} {playing ? "Pausar" : "Reproducir"}
                 </button>
               )}
             </div>
@@ -801,7 +801,7 @@ export default function App() {
                   color: "var(--text-secondary)",
                 }}
               >
-                How did that feel?
+                ¿Cómo te fue?
               </p>
               {uploading ? (
                 <p style={{ fontSize: 14, color: "var(--text-secondary)" }}>Guardando...</p>
@@ -830,8 +830,8 @@ export default function App() {
                 fontSize: 13,
               }}
             >
-              Today: {todaySessions.length} session{todaySessions.length > 1 ? "s" : ""} ·{" "}
-              {fmtTime(todayMin)} total
+              Hoy: {todaySessions.length} sesión{todaySessions.length > 1 ? "es" : ""} ·{" "}
+              {fmtTime(todayMin)} en total
             </div>
           )}
         </>
@@ -845,13 +845,13 @@ export default function App() {
               className={`btn btn-sm ${mode === "topics" ? "btn-accent" : "btn-ghost"}`}
               onClick={() => setMode("topics")}
             >
-              Topics
+              Temas
             </button>
             <button
               className={`btn btn-sm ${mode === "chunks" ? "btn-accent" : "btn-ghost"}`}
               onClick={() => setMode("chunks")}
             >
-              Chunks
+              Frases
             </button>
           </div>
 
@@ -885,7 +885,7 @@ export default function App() {
                 <div className="cat-header" onClick={() => toggleCat(cat.cat)}>
                   <span style={{ fontWeight: 600, fontSize: 14 }}>{cat.cat}</span>
                   <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                    {cat.items.length} phrases
+                    {cat.items.length} frases
                   </span>
                 </div>
                 {expandedCats[cat.cat] &&
@@ -920,26 +920,26 @@ export default function App() {
             <div className="stat-grid">
               <div className="stat-box">
                 <div className="stat-num">{data.streak}</div>
-                <div className="stat-label">Streak</div>
+                <div className="stat-label">Racha</div>
               </div>
               <div className="stat-box">
                 <div className="stat-num">{totalSessions}</div>
-                <div className="stat-label">Sessions</div>
+                <div className="stat-label">Sesiones</div>
               </div>
               <div className="stat-box">
                 <div className="stat-num">
                   {fmtTime(data.sessions.reduce((a, s) => a + s.duration, 0))}
                 </div>
-                <div className="stat-label">Total Time</div>
+                <div className="stat-label">Tiempo Total</div>
               </div>
             </div>
           </div>
 
           <div className="card">
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Recent Sessions</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Sesiones Recientes</h3>
             {data.sessions.length === 0 && (
               <p style={{ color: "var(--text-muted)", fontSize: 14 }}>
-                No sessions yet. Start practicing!
+                Aún no hay sesiones. ¡A practicar!
               </p>
             )}
             {[...data.sessions]
@@ -976,14 +976,14 @@ export default function App() {
               className="btn btn-ghost btn-sm"
               style={{ margin: "10px auto", display: "block" }}
               onClick={() => {
-                if (confirm("Clear all progress data?")) {
+                if (confirm("¿Borrar todos los datos de progreso?")) {
                   const empty = { sessions: [], streak: 0, lastDate: null };
                   setData(empty);
                   saveData(empty);
                 }
               }}
             >
-              Reset Progress
+              Borrar Progreso
             </button>
           )}
         </>
