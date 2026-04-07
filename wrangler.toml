@@ -3,10 +3,9 @@ compatibility_date = "2024-12-01"
 pages_build_output_dir = "dist"
 
 # R2 bucket binding — create with: wrangler r2 bucket create habla-recordings
-# Uncomment when ready to use R2 uploads
-# [[r2_buckets]]
-# binding = "RECORDINGS"
-# bucket_name = "habla-recordings"
+[[r2_buckets]]
+binding = "RECORDINGS"
+bucket_name = "habla-recordings"
 
 # Secrets (set via `wrangler secret put`):
 # CARTESIA_API_KEY
