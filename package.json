@@ -4,8 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "dev": "vite build && wrangler pages dev dist",
+    "dev:vite": "vite dev",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite build && wrangler pages dev dist",
     "deploy": "npm run build && npx wrangler pages deploy",
     "format": "prettier --write 'src/**/*.{js,jsx}' 'functions/**/*.js'",
     "format:check": "prettier --check 'src/**/*.{js,jsx}' 'functions/**/*.js'"
