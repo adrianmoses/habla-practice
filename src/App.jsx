@@ -360,13 +360,10 @@ export default function App() {
             {recording && (
               <button className="btn" style={{ background: "var(--danger)", color: "#fff" }} onClick={stopRec}><StopIcon /> Stop</button>
             )}
-            {audioUrl && !showRating && (
-              <>
-                <button className="btn btn-ghost" onClick={togglePlay}>
-                  {playing ? <PauseIcon /> : <PlayIcon />} {playing ? "Pause" : "Play back"}
-                </button>
-                <button className="btn btn-accent" onClick={() => setShowRating(true)}>Save</button>
-              </>
+            {audioUrl && (
+              <button className="btn btn-ghost" onClick={togglePlay}>
+                {playing ? <PauseIcon /> : <PlayIcon />} {playing ? "Pause" : "Play back"}
+              </button>
             )}
           </div>
 
