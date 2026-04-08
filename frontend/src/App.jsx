@@ -97,6 +97,79 @@ const LoadingIcon = () => (
     <path d="M12 2a10 10 0 0 1 10 10" className="spinner-path" />
   </svg>
 );
+const PencilIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+  </svg>
+);
+const TrashIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+const PlusIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+const CheckIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+const XIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
 
 const ttsCache = new Map();
 
@@ -185,6 +258,8 @@ export default function App() {
   const [uploading, setUploading] = useState(false);
   const [topics, setTopics] = useState([]);
   const [chunksData, setChunksData] = useState([]);
+  const [editing, setEditing] = useState(null); // { type, id, ...fields }
+  const [adding, setAdding] = useState(null); // { type, cat, ...fields }
 
   const mediaRec = useRef(null);
   const audioChunksRef = useRef([]);
@@ -205,6 +280,46 @@ export default function App() {
       setLoaded(true);
     });
   }, []);
+
+  const refetchData = useCallback(() => {
+    Promise.all([
+      fetch("/api/topics").then((r) => r.json()),
+      fetch("/api/chunks").then((r) => r.json()),
+    ]).then(([t, ch]) => {
+      setTopics(t);
+      setChunksData(ch);
+    });
+  }, []);
+
+  const handleDelete = async (type, id) => {
+    if (!confirm("¿Eliminar este elemento?")) return;
+    await fetch(`/api/${type}/${id}`, { method: "DELETE" });
+    refetchData();
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editing) return;
+    const { type, id, ...fields } = editing;
+    await fetch(`/api/${type}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fields),
+    });
+    setEditing(null);
+    refetchData();
+  };
+
+  const handleAdd = async () => {
+    if (!adding) return;
+    const { type, ...fields } = adding;
+    await fetch(`/api/${type}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fields),
+    });
+    setAdding(null);
+    refetchData();
+  };
 
   // Generate random prompt
   const randomPrompt = useCallback(() => {
@@ -605,6 +720,129 @@ export default function App() {
             </button>
           </div>
 
+          {/* Add new category button */}
+          <button
+            className="btn btn-ghost btn-sm"
+            style={{ marginBottom: 14, width: "100%" }}
+            onClick={() =>
+              setAdding(
+                mode === "topics"
+                  ? { type: "topics", category: "", prompt_text: "" }
+                  : { type: "chunks", category: "", text_es: "", text_en: "" },
+              )
+            }
+          >
+            <PlusIcon /> Agregar {mode === "topics" ? "tema" : "frase"}
+          </button>
+
+          {/* Add form (new category / item) */}
+          {adding && (
+            <div className="card" style={{ padding: "14px 20px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 10,
+                }}
+              >
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>
+                  Nuevo {adding.type === "topics" ? "tema" : "frase"}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setAdding(null)}
+                  style={{ padding: "4px 6px", minWidth: 0 }}
+                >
+                  <XIcon />
+                </button>
+              </div>
+              <input
+                type="text"
+                placeholder="Categoría"
+                value={adding.category}
+                onChange={(e) => setAdding({ ...adding, category: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  marginBottom: 8,
+                  borderRadius: 8,
+                  border: "1px solid var(--card-border)",
+                  background: "var(--surface)",
+                  color: "var(--text-primary)",
+                  fontSize: 13,
+                  fontFamily: "inherit",
+                }}
+              />
+              {adding.type === "topics" ? (
+                <input
+                  type="text"
+                  placeholder="Texto del tema"
+                  value={adding.prompt_text}
+                  onChange={(e) => setAdding({ ...adding, prompt_text: e.target.value })}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    marginBottom: 8,
+                    borderRadius: 8,
+                    border: "1px solid var(--card-border)",
+                    background: "var(--surface)",
+                    color: "var(--text-primary)",
+                    fontSize: 13,
+                    fontFamily: "inherit",
+                  }}
+                />
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Español"
+                    value={adding.text_es}
+                    onChange={(e) => setAdding({ ...adding, text_es: e.target.value })}
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      marginBottom: 8,
+                      borderRadius: 8,
+                      border: "1px solid var(--card-border)",
+                      background: "var(--surface)",
+                      color: "var(--text-primary)",
+                      fontSize: 13,
+                      fontFamily: "inherit",
+                    }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="English"
+                    value={adding.text_en}
+                    onChange={(e) => setAdding({ ...adding, text_en: e.target.value })}
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      marginBottom: 8,
+                      borderRadius: 8,
+                      border: "1px solid var(--card-border)",
+                      background: "var(--surface)",
+                      color: "var(--text-primary)",
+                      fontSize: 13,
+                      fontFamily: "inherit",
+                    }}
+                  />
+                </>
+              )}
+              <button
+                className="btn btn-accent btn-sm"
+                onClick={handleAdd}
+                disabled={
+                  !adding.category ||
+                  (adding.type === "topics" ? !adding.prompt_text : !adding.text_es)
+                }
+              >
+                <CheckIcon /> Guardar
+              </button>
+            </div>
+          )}
+
           {mode === "topics" &&
             topics.map((cat, ci) => (
               <div key={ci} className="card" style={{ padding: "6px 20px" }}>
@@ -612,20 +850,110 @@ export default function App() {
                   <span style={{ fontWeight: 600, fontSize: 14 }}>{cat.cat}</span>
                   <ChevronIcon down={expandedCats[cat.cat]} />
                 </div>
-                {expandedCats[cat.cat] &&
-                  cat.items.map((item, i) => (
-                    <div
-                      key={item.id || i}
-                      style={{
-                        padding: "8px 0",
-                        borderTop: "1px solid var(--card-border)",
-                        fontSize: 14,
-                        color: "var(--text-secondary)",
-                      }}
+                {expandedCats[cat.cat] && (
+                  <>
+                    {cat.items.map((item) =>
+                      editing?.type === "topics" && editing?.id === item.id ? (
+                        <div
+                          key={item.id}
+                          style={{
+                            padding: "8px 0",
+                            borderTop: "1px solid var(--card-border)",
+                            display: "flex",
+                            gap: 8,
+                            alignItems: "center",
+                          }}
+                        >
+                          <input
+                            type="text"
+                            value={editing.prompt_text}
+                            onChange={(e) =>
+                              setEditing({ ...editing, prompt_text: e.target.value })
+                            }
+                            style={{
+                              flex: 1,
+                              padding: "6px 10px",
+                              borderRadius: 8,
+                              border: "1px solid var(--accent)",
+                              background: "var(--surface)",
+                              color: "var(--text-primary)",
+                              fontSize: 13,
+                              fontFamily: "inherit",
+                            }}
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleSaveEdit();
+                              if (e.key === "Escape") setEditing(null);
+                            }}
+                          />
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={handleSaveEdit}
+                            style={{ padding: "4px 6px", minWidth: 0 }}
+                            title="Guardar"
+                          >
+                            <CheckIcon />
+                          </button>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => setEditing(null)}
+                            style={{ padding: "4px 6px", minWidth: 0 }}
+                            title="Cancelar"
+                          >
+                            <XIcon />
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          key={item.id}
+                          style={{
+                            padding: "8px 0",
+                            borderTop: "1px solid var(--card-border)",
+                            fontSize: 14,
+                            color: "var(--text-secondary)",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                          }}
+                        >
+                          <span style={{ flex: 1 }}>{item.text}</span>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() =>
+                              setEditing({
+                                type: "topics",
+                                id: item.id,
+                                category: cat.cat,
+                                prompt_text: item.text,
+                              })
+                            }
+                            style={{ padding: "4px 6px", minWidth: 0 }}
+                            title="Editar"
+                          >
+                            <PencilIcon />
+                          </button>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => handleDelete("topics", item.id)}
+                            style={{ padding: "4px 6px", minWidth: 0, color: "var(--danger)" }}
+                            title="Eliminar"
+                          >
+                            <TrashIcon />
+                          </button>
+                        </div>
+                      ),
+                    )}
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      style={{ marginTop: 8, marginBottom: 4, width: "100%", fontSize: 12 }}
+                      onClick={() =>
+                        setAdding({ type: "topics", category: cat.cat, prompt_text: "" })
+                      }
                     >
-                      {item.text}
-                    </div>
-                  ))}
+                      <PlusIcon /> Agregar tema
+                    </button>
+                  </>
+                )}
               </div>
             ))}
 
@@ -638,26 +966,148 @@ export default function App() {
                     {cat.items.length} frases
                   </span>
                 </div>
-                {expandedCats[cat.cat] &&
-                  cat.items.map((item, i) => (
-                    <div key={i} className="chunk-item" onClick={() => toggleEn(`b-${ci}-${i}`)}>
-                      <p style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)" }}>
-                        {item.es}
-                      </p>
-                      {showEn[`b-${ci}-${i}`] && (
-                        <p
+                {expandedCats[cat.cat] && (
+                  <>
+                    {cat.items.map((item, i) =>
+                      editing?.type === "chunks" && editing?.id === item.id ? (
+                        <div
+                          key={item.id}
                           style={{
-                            fontSize: 12,
-                            color: "var(--text-muted)",
-                            marginTop: 3,
-                            fontStyle: "italic",
+                            padding: "10px 0",
+                            borderBottom: "1px solid var(--card-border)",
                           }}
                         >
-                          {item.en}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                          <input
+                            type="text"
+                            value={editing.text_es}
+                            onChange={(e) => setEditing({ ...editing, text_es: e.target.value })}
+                            placeholder="Español"
+                            style={{
+                              width: "100%",
+                              padding: "6px 10px",
+                              marginBottom: 6,
+                              borderRadius: 8,
+                              border: "1px solid var(--accent)",
+                              background: "var(--surface)",
+                              color: "var(--text-primary)",
+                              fontSize: 13,
+                              fontFamily: "inherit",
+                            }}
+                            autoFocus
+                          />
+                          <input
+                            type="text"
+                            value={editing.text_en}
+                            onChange={(e) => setEditing({ ...editing, text_en: e.target.value })}
+                            placeholder="English"
+                            style={{
+                              width: "100%",
+                              padding: "6px 10px",
+                              marginBottom: 6,
+                              borderRadius: 8,
+                              border: "1px solid var(--card-border)",
+                              background: "var(--surface)",
+                              color: "var(--text-primary)",
+                              fontSize: 13,
+                              fontFamily: "inherit",
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleSaveEdit();
+                              if (e.key === "Escape") setEditing(null);
+                            }}
+                          />
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button
+                              className="btn btn-ghost btn-sm"
+                              onClick={handleSaveEdit}
+                              style={{ padding: "4px 8px" }}
+                            >
+                              <CheckIcon /> Guardar
+                            </button>
+                            <button
+                              className="btn btn-ghost btn-sm"
+                              onClick={() => setEditing(null)}
+                              style={{ padding: "4px 8px" }}
+                            >
+                              <XIcon /> Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          key={item.id}
+                          style={{
+                            padding: "10px 0",
+                            borderBottom: "1px solid var(--card-border)",
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 8,
+                          }}
+                        >
+                          <div
+                            style={{ flex: 1, cursor: "pointer" }}
+                            onClick={() => toggleEn(`b-${ci}-${i}`)}
+                          >
+                            <p
+                              style={{
+                                fontSize: 14,
+                                fontWeight: 500,
+                                color: "var(--text-primary)",
+                              }}
+                            >
+                              {item.es}
+                            </p>
+                            {showEn[`b-${ci}-${i}`] && (
+                              <p
+                                style={{
+                                  fontSize: 12,
+                                  color: "var(--text-muted)",
+                                  marginTop: 3,
+                                  fontStyle: "italic",
+                                }}
+                              >
+                                {item.en}
+                              </p>
+                            )}
+                          </div>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() =>
+                              setEditing({
+                                type: "chunks",
+                                id: item.id,
+                                category: cat.cat,
+                                text_es: item.es,
+                                text_en: item.en,
+                              })
+                            }
+                            style={{ padding: "4px 6px", minWidth: 0 }}
+                            title="Editar"
+                          >
+                            <PencilIcon />
+                          </button>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => handleDelete("chunks", item.id)}
+                            style={{ padding: "4px 6px", minWidth: 0, color: "var(--danger)" }}
+                            title="Eliminar"
+                          >
+                            <TrashIcon />
+                          </button>
+                        </div>
+                      ),
+                    )}
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      style={{ marginTop: 8, marginBottom: 4, width: "100%", fontSize: 12 }}
+                      onClick={() =>
+                        setAdding({ type: "chunks", category: cat.cat, text_es: "", text_en: "" })
+                      }
+                    >
+                      <PlusIcon /> Agregar frase
+                    </button>
+                  </>
+                )}
               </div>
             ))}
         </>
