@@ -1,0 +1,29 @@
+# fly.toml app configuration file generated for habla-practice on 2026-04-08T01:39:17+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'habla-practice'
+primary_region = 'fra'
+
+[build]
+
+[env]
+  DATA_DIR = '/data'
+  PORT = '3000'
+
+[[mounts]]
+  source = 'habla_data'
+  destination = '/data'
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  memory = '1gb'
+  cpus = 1
+  memory_mb = 1024

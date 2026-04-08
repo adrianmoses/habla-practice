@@ -1,21 +1,24 @@
-export async function onRequestPost(context) {
-  const { request, env } = context;
+import { Hono } from "hono";
 
-  try {
-    const { text } = await request.json();
+export default function ttsRoutes() {
+  const app = new Hono();
+
+  app.post("/tts", async (c) => {
+    const { text } = await c.req.json();
 
     if (!text || typeof text !== "string") {
-      return Response.json({ error: "Missing text parameter" }, { status: 400 });
+      return c.json({ error: "Missing text parameter" }, 400);
     }
 
-    if (!env.CARTESIA_API_KEY) {
-      return Response.json({ error: "TTS not configured" }, { status: 503 });
+    const apiKey = process.env.CARTESIA_API_KEY;
+    if (!apiKey) {
+      return c.json({ error: "TTS not configured" }, 503);
     }
 
     const response = await fetch("https://api.cartesia.ai/tts/bytes", {
       method: "POST",
       headers: {
-        "X-API-Key": env.CARTESIA_API_KEY,
+        "X-API-Key": apiKey,
         "Cartesia-Version": "2024-06-10",
         "Content-Type": "application/json",
       },
@@ -38,7 +41,7 @@ export async function onRequestPost(context) {
     if (!response.ok) {
       const err = await response.text();
       console.error("Cartesia API error:", response.status, err);
-      return Response.json({ error: "TTS request failed" }, { status: 502 });
+      return c.json({ error: "TTS request failed" }, 502);
     }
 
     return new Response(response.body, {
@@ -47,7 +50,7 @@ export async function onRequestPost(context) {
         "Cache-Control": "public, max-age=86400",
       },
     });
-  } catch (err) {
-    return Response.json({ ok: false, error: err.message }, { status: 500 });
-  }
+  });
+
+  return app;
 }

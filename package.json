@@ -4,22 +4,16 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite build && wrangler pages dev dist",
-    "dev:vite": "vite dev",
-    "build": "vite build",
-    "preview": "vite build && wrangler pages dev dist",
-    "deploy": "npm run build && npx wrangler pages deploy",
-    "format": "prettier --write 'src/**/*.{js,jsx}' 'functions/**/*.js'",
-    "format:check": "prettier --check 'src/**/*.{js,jsx}' 'functions/**/*.js'"
-  },
-  "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npx vite",
+    "dev:backend": "node --env-file=.env --watch backend/src/index.js",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && node src/index.js",
+    "format": "prettier --write 'frontend/src/**/*.{js,jsx}' 'backend/src/**/*.js'",
+    "format:check": "prettier --check 'frontend/src/**/*.{js,jsx}' 'backend/src/**/*.js'"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
-    "prettier": "^3.8.1",
-    "vite": "^6.0.0",
-    "wrangler": "^4.80.0"
+    "concurrently": "^9.1.2",
+    "prettier": "^3.8.1"
   }
 }

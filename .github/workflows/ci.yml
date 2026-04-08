@@ -15,15 +15,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
-      - run: npm ci
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Install backend dependencies
+        run: cd backend && npm ci
 
       - name: Check formatting
         run: npm run format:check
 
-      - name: Build
+      - name: Build frontend
         run: npm run build
-
-      - name: Run tests
-        run: npm test --if-present
