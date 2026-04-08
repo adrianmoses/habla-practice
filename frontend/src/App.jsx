@@ -243,7 +243,7 @@ const RATINGS = [
 
 export default function App() {
   const [view, setView] = useState("practice"); // practice | log
-  const [mode, setMode] = useState("topics"); // topics | chunks
+  const [mode, setMode] = useState("chunks"); // topics | chunks
   const [prompt, setPrompt] = useState(null);
   const [chunkCat, setChunkCat] = useState(null);
   const [showEn, setShowEn] = useState({});
