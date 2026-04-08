@@ -428,6 +428,7 @@ export default function App() {
     setAudioUrl(null);
     audioBlobRef.current = null;
     setElapsed(0);
+    randomPrompt();
   };
 
   const todaySessions = data.sessions.filter((s) => s.date === today());
