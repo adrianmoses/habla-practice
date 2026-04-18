@@ -4,44 +4,61 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Habla Practice is a Spanish language speaking practice app with voice recording, Cartesia TTS playback, and vocabulary/topic management. Monorepo with a React frontend and Hono/Node.js backend using SQLite.
+Habla Practice is a total-immersion language practice tool for colloquial Madrid Spanish. Learner-picked scenarios (bar, market, landlord, metro) frame live role-play sessions with a voice agent. Transcript-based LLM-as-judge detects which target chunks were deployed; SM-2 SRS per scenario surfaces what's due next.
+
+Monorepo: React 19 + Vite frontend and a Python 3.12 + FastAPI backend served from a single Fly.io deployment. SQLite via `aiosqlite`. No voice pipeline yet — lands in Phase 3 (Pipecat: smart-turn VAD → Groq Whisper → Claude Haiku → Cartesia TTS).
+
+Authoritative design docs live in `docs/specs/`: `OVERVIEW.md`, `ARCHITECTURE.md`, `ROADMAP.md`. Active phase plan (if any) in `/Users/adrianmoses/.claude/plans/`.
 
 ## Commands
 
 ```bash
-npm run dev              # Start frontend + backend concurrently
-npm run dev:frontend     # Vite dev server only (port 5173, proxies /api to :3000)
-npm run dev:backend      # Backend with --watch and --env-file=.env
-npm run build            # Build frontend (cd frontend && vite build)
-npm run start            # Run backend in production mode
-npm run format           # Prettier write
-npm run format:check     # Prettier check (runs in CI)
+npm run dev              # vite (5173) + uvicorn (3000) concurrently, prefixed be|fe
+npm run dev:frontend     # frontend only
+npm run dev:backend      # uv run uvicorn habla.main:app --reload --port 3000
+npm run build            # build frontend into frontend/dist/
+npm run start            # uvicorn bound to 0.0.0.0, serves frontend/dist via SPA fallback
+npm run format           # prettier (frontend) + ruff format (backend)
+npm run format:check     # both, check-only (runs in CI)
+npm run lint             # ruff check
+npm run typecheck        # pyright
 ```
 
-Dependencies are installed separately: `npm ci` at root, `cd frontend && npm ci`, `cd backend && npm ci`.
+Install: `npm install` at root, `(cd frontend && npm install)`, `(cd backend && uv sync)`.
 
 ## Architecture
 
-**Frontend** (`frontend/`): React 19 + Vite. Single-page app in `App.jsx` with three views (practice, browse, progress). Uses browser MediaRecorder for audio capture and localStorage for session/streak persistence. Vite proxies `/api/*` to the backend in dev.
+**Frontend** (`frontend/`): React 19 + Vite. Will be rewritten in Phase 2 to the three-tab UI from `docs/artifacts/habla-practice.html` (sesión / frases / historial). During Phase 1 the legacy `App.jsx` renders with errors against the new API shapes — expected.
 
-**Backend** (`backend/`): Hono on `@hono/node-server`. Serves API routes and the built frontend static files. SQLite database (`better-sqlite3`) at `$DATA_DIR/habla.db` with WAL mode. Tables: `topics` (category, prompt_text) and `chunks` (category, text_es, text_en). Auto-seeds from `db/seed.js` if tables are empty.
+**Backend** (`backend/`): Python 3.12, `uv`-managed under `src/habla/`. FastAPI app in `habla.main`, `aiosqlite` connection held on `app.state.db` via lifespan. Schema in `habla.db.schema`, seed in `habla.db.seed`, routes under `habla.routes.*`. Future: `habla.agent.*` (Phase 3 pipeline) and `habla.analysis.*` (Phase 5 judge + Phase 6 SRS).
 
-**API routes** (all in `backend/src/routes/`):
-- `POST /api/tts` — proxies to Cartesia AI for Spanish TTS, returns audio/mpeg
-- `POST /api/upload` — saves WebM audio to `$DATA_DIR/recordings/{date}/{id}.webm`
-- `GET /api/recordings/:id?key=...` — serves audio files from disk
-- `/api/topics` and `/api/chunks` — CRUD (GET list, POST create, PUT /:id, DELETE /:id)
+**Data model** (new, clean break from the old `topics`/`chunks`):
+- `scenarios`, `chunks`, `scenario_chunks` (m:n, positioned)
+- `sessions` — one row per role-play; transcript stored as JSON column (Phase 3 populates)
+- `chunk_deployments` — per (session, chunk) verdict (Phase 5)
+- `scenario_srs` — SM-2 state per scenario (Phase 6)
 
-GET responses for topics/chunks are grouped by category: `[{cat, items: [...]}]`. Topic items have `{id, text}`, chunk items have `{id, es, en}`.
+**API routes** (current, Phase 1):
+- `/api/scenarios` — CRUD. GET returns `[{id, slug, name, icon, chunks: [{id, text_es, gloss_es, tags, position}], created_at}]`. POST/PUT body is `{slug, name, icon, chunk_ids: int[]}` — chunk IDs are the m:n source of truth.
+- `/api/chunks` — CRUD. GET returns `[{id, text_es, gloss_es, tags, rep_count, created_at}]` — `rep_count` always 0 in Phase 1; Phase 5 fills from `SUM(chunk_deployments.deployed)`.
+
+All routes return JSON; 204 on DELETE; 400/404/409/422 for validation/missing/unique/shape errors.
 
 ## Environment
 
-Requires `.env` at project root with `CARTESIA_API_KEY`. Optional: `DATA_DIR` (default: `./data`), `PORT` (default: 3000).
+`.env` at project root. Phase 1 doesn't require any key but the file is loaded by `pydantic-settings`:
+- `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, `CARTESIA_API_KEY` — used from Phase 3 onward
+- `DATA_DIR` (default `./data`), `PORT` (default 3000)
 
-## Formatting
+## Tooling
 
-Prettier with: double quotes, semicolons, trailing commas, 100 char width, 2-space indent. CI enforces via `format:check`.
+- **Python**: ruff (lint + format, 100-col, double-quote, `E,F,I,UP,B,SIM,RUF`), pyright (standard mode), pytest + pytest-asyncio (harness set up, first tests land in Phase 5).
+- **Frontend**: Prettier 3 (unchanged — double quotes, semicolons, trailing commas, 100 col, 2-space).
 
 ## Deployment
 
-Fly.io with Docker multi-stage build. Persistent volume mounted at `/data` for SQLite DB and audio recordings. Region: fra. Config in `fly.toml` and `Dockerfile`.
+Fly.io multi-stage Docker: `node:20-slim` builds frontend → `python:3.12-slim` runs uvicorn and serves `frontend/dist`. Persistent volume `habla_data` at `/data`. Region `fra`. Config in `fly.toml` and `Dockerfile`. Deploy on push to `main` via `.github/workflows/fly-deploy.yml`.
+
+## Specs
+
+When picking up work, read `docs/specs/OVERVIEW.md` for product intent, `docs/specs/ARCHITECTURE.md` for the target data flow / schema / data model, and `docs/specs/ROADMAP.md` for the phase breakdown. The ROADMAP's "Phases" section is the canonical shipping order.

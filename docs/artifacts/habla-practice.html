@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>habla.practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0E0F0D;
+    --surface: #161714;
+    --surface-2: #1E201C;
+    --surface-3: #252720;
+    --border: rgba(255,255,255,0.07);
+    --border-med: rgba(255,255,255,0.12);
+    --text: #F0EDE6;
+    --text-2: #888C82;
+    --text-3: #52554C;
+    --green: #1D9E75;
+    --green-light: rgba(29,158,117,0.15);
+    --green-mid: #5DCAA5;
+    --green-dark: #0F6E56;
+    --green-deep: #9FE1CB;
+    --amber: #EF9F27;
+    --amber-light: rgba(239,159,39,0.12);
+    --red: #E05252;
+    --red-light: rgba(224,82,82,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-pill: 100px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    font-family: var(--font);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  /* ── SHELL ── */
+  .shell {
+    width: 390px;
+    min-height: 720px;
+    background: var(--surface);
+    border-radius: 24px;
+    border: 0.5px solid var(--border-med);
+    box-shadow: 0 2px 60px rgba(0,0,0,0.5), 0 0 0 0.5px var(--border-med);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    padding: 16px 20px 14px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+    color: var(--text);
+  }
+  .logo-mark {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--green);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-mark svg { display: block; }
+  .streak {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px;
+    color: var(--text-2);
+    background: var(--surface-2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 4px 12px;
+  }
+  .streak strong { color: var(--amber); font-weight: 500; }
+
+  /* ── NAV ── */
+  .nav {
+    display: flex;
+    border-bottom: 0.5px solid var(--border);
+    background: var(--surface);
+    padding: 0 20px;
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 11px 0;
+    font-size: 13px;
+    font-family: var(--font);
+    color: var(--text-3);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  .nav-btn.active {
+    color: var(--text);
+    border-bottom-color: var(--green);
+    font-weight: 500;
+  }
+  .nav-btn:hover:not(.active) { color: var(--text-2); }
+
+  /* ── CONTENT ── */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-med) transparent;
+  }
+
+  /* ── LABELS ── */
+  .label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  /* ── STATS ── */
+  .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 22px; }
+  .stat {
+    background: var(--surface-2);
+    border-radius: var(--radius);
+    padding: 13px 14px;
+    border: 0.5px solid var(--border);
+  }
+  .stat-l { font-size: 10px; color: var(--text-3); margin-bottom: 4px; }
+  .stat-v { font-size: 22px; font-weight: 500; color: var(--text); letter-spacing: -0.5px; }
+  .stat-s { font-size: 10px; color: var(--text-3); margin-top: 1px; }
+
+  /* ── SCENARIO CARDS ── */
+  .scenarios { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .sc {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 13px 14px;
+    cursor: pointer;
+    transition: border-color 0.12s, box-shadow 0.12s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .sc:hover { border-color: var(--border-med); }
+  .sc.sel { border: 1.5px solid var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,0.06); }
+  .sc-icon {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+  }
+  .sc-body { flex: 1; min-width: 0; }
+  .sc-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 5px; }
+  .sc-conf { display: flex; align-items: center; gap: 7px; }
+  .conf-track { flex: 1; height: 3px; background: var(--border-med); border-radius: 2px; overflow: hidden; }
+  .conf-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+  .due-pill { font-size: 10px; border-radius: var(--radius-pill); padding: 2px 8px; white-space: nowrap; font-weight: 500; }
+  .due-today { background: var(--amber-light); color: var(--amber); }
+  .due-later { background: var(--green-light); color: var(--green-deep); }
+
+  /* ── DURATION ── */
+  .dur-row { display: flex; gap: 6px; margin-bottom: 16px; }
+  .dur {
+    flex: 1; padding: 8px 4px;
+    font-size: 12px; font-family: var(--font);
+    border: 0.5px solid var(--border-med);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-2);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s;
+  }
+  .dur.active { background: var(--green-light); border-color: var(--green-mid); color: var(--green-deep); font-weight: 500; }
+  .dur:hover:not(.active) { border-color: var(--border-med); color: var(--text); }
+
+  /* ── START BUTTON ── */
+  .start {
+    width: 100%; padding: 13px;
+    background: var(--green);
+    color: #fff;
+    border: none; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500; font-family: var(--font);
+    cursor: pointer;
+    transition: background 0.12s, transform 0.08s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    letter-spacing: -0.1px;
+  }
+  .start:hover { background: var(--green-dark); }
+  .start:active { transform: scale(0.99); }
+
+  .add-row {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 0;
+    cursor: pointer;
+    color: var(--text-3);
+    font-size: 13px;
+    transition: color 0.12s;
+  }
+  .add-row:hover { color: var(--text); }
+  .add-circle {
+    width: 26px; height: 26px;
+    border: 0.5px dashed var(--border-med);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--text-3);
+    transition: border-color 0.12s, color 0.12s;
+  }
+  .add-row:hover .add-circle { border-color: var(--green); color: var(--green); }
+
+  /* ── FRASES TAB ── */
+  .filters { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .fpill {
+    font-size: 11px; padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    border: 0.5px solid var(--border-med);
+    background: var(--surface);
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: var(--font);
+  }
+  .fpill.active { background: var(--green-light); border-color: var(--green-mid); color: var(--green-deep); font-weight: 500; }
+
+  .chunk-list { display: flex; flex-direction: column; gap: 6px; }
+  .chunk {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    transition: border-color 0.12s;
+  }
+  .chunk:hover { border-color: var(--border-med); }
+  .reps {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; flex-shrink: 0;
+    font-family: var(--mono);
+  }
+  .chunk-body { flex: 1; min-width: 0; }
+  .chunk-es { font-size: 13px; font-weight: 500; color: var(--text); }
+  .chunk-gloss { font-size: 11px; color: var(--text-3); margin-top: 2px; font-style: italic; }
+  .ctag { font-size: 10px; padding: 3px 8px; border-radius: var(--radius-pill); flex-shrink: 0; font-weight: 500; }
+  .t-bar { background: rgba(83,74,183,0.2); color: #AFA9EC; }
+  .t-social { background: var(--green-light); color: var(--green-deep); }
+  .t-calle { background: var(--amber-light); color: #FAC775; }
+
+  /* ── HISTORIAL ── */
+  .week { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-bottom: 22px; }
+  .wday { text-align: center; }
+  .wlabel { font-size: 10px; color: var(--text-3); margin-bottom: 5px; }
+  .wdot {
+    width: 32px; height: 32px; border-radius: 7px;
+    margin: 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; font-family: var(--mono);
+  }
+  .wd-empty { background: var(--surface-2); color: var(--text-3); }
+  .wd-done { background: var(--green-light); color: var(--green-deep); }
+  .wd-today { background: var(--green); color: #fff; }
+
+  .hist-list { display: flex; flex-direction: column; gap: 7px; }
+  .hist {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hist-date { font-size: 11px; color: var(--text-3); min-width: 44px; font-family: var(--mono); }
+  .hist-body { flex: 1; }
+  .hist-sc { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .hist-meta { font-size: 11px; color: var(--text-2); }
+  .hist-delta { font-size: 12px; font-weight: 500; font-family: var(--mono); }
+  .prev-pill {
+    font-size: 12px;
+    padding: 6px 11px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border-med);
+    background: var(--surface-2);
+    color: var(--text-2);
+    transition: all 0.15s;
+  }
+
+  .delta-up { color: var(--green-mid); }
+  .delta-dn { color: var(--amber); }
+
+  /* ══════════════════════════════
+     LIVE SESSION SCREEN
+  ══════════════════════════════ */
+  .session-screen {
+    position: absolute;
+    inset: 0;
+    background: var(--surface);
+    display: none;
+    flex-direction: column;
+    z-index: 10;
+  }
+  .session-screen.show { display: flex; }
+
+  .sess-header {
+    padding: 16px 20px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .sess-scenario { font-size: 14px; font-weight: 500; color: var(--text); }
+  .sess-timer {
+    font-size: 24px; font-weight: 500;
+    color: var(--text); letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+    font-family: var(--mono);
+    transition: color 0.3s;
+  }
+  .sess-timer.low { color: var(--red); }
+
+  /* AGENT */
+  .agent-zone {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px;
+    padding: 20px;
+  }
+  .orb-wrap { position: relative; width: 72px; height: 72px; }
+  .orb {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--green-light);
+    border: 1.5px solid var(--green-mid);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 2;
+  }
+  .orb-core { width: 32px; height: 32px; border-radius: 50%; background: var(--green); }
+  .ring {
+    position: absolute; inset: -8px;
+    border-radius: 50%;
+    border: 1px solid var(--green-mid);
+    animation: ringpulse 2s ease-out infinite;
+    opacity: 0;
+  }
+  .ring:nth-child(2) { animation-delay: 0.7s; }
+  @keyframes ringpulse {
+    0% { transform: scale(0.9); opacity: 0.5; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+  .voice-bars {
+    display: flex; align-items: center; gap: 3px; height: 32px;
+  }
+  .vbar {
+    width: 3px; border-radius: 2px;
+    background: var(--green-mid);
+    animation: vbar 1s ease-in-out infinite alternate;
+  }
+  @keyframes vbar {
+    from { height: 4px; opacity: 0.3; }
+    to { height: 26px; opacity: 1; }
+  }
+  .agent-label { font-size: 12px; color: var(--text-3); }
+
+  /* CHUNK PANEL */
+  .chunk-panel {
+    flex-shrink: 0;
+    border-top: 0.5px solid var(--border);
+    background: var(--surface-2);
+    padding: 14px 18px 16px;
+  }
+  .cp-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 11px;
+  }
+  .cp-label { font-size: 10px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+  .cp-count { font-size: 11px; color: var(--green); font-family: var(--mono); font-weight: 500; }
+
+  .cpills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cpill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border-med);
+    background: var(--surface);
+    font-size: 12px; color: var(--text-2);
+    font-family: var(--font);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .cpill.hit {
+    background: var(--green-light);
+    border-color: var(--green-mid);
+    color: var(--green-deep);
+    font-weight: 500;
+  }
+  .cpill-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--border-med);
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .cpill.hit .cpill-dot { background: var(--green); }
+
+  .sess-footer {
+    padding: 14px 18px;
+    display: flex; gap: 8px;
+    border-top: 0.5px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+  .btn-sec {
+    flex: 1; padding: 10px;
+    border: 0.5px solid var(--border-med);
+    border-radius: var(--radius-sm);
+    background: transparent; color: var(--text-2);
+    font-size: 13px; font-family: var(--font);
+    cursor: pointer; transition: all 0.12s;
+  }
+  .btn-sec:hover { background: var(--surface-2); color: var(--text); }
+  .btn-pri {
+    flex: 1; padding: 10px;
+    border: 0.5px solid var(--border-med);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2); color: var(--text);
+    font-size: 13px; font-weight: 500; font-family: var(--font);
+    cursor: pointer; transition: all 0.12s;
+  }
+  .btn-pri:hover { border-color: var(--border-med); background: var(--surface-3); }
+
+  /* ══════════════════════════════
+     POST-SESSION SCREEN
+  ══════════════════════════════ */
+  .post-screen {
+    position: absolute; inset: 0;
+    background: var(--surface);
+    display: none; flex-direction: column;
+    z-index: 10; overflow-y: auto;
+  }
+  .post-screen.show { display: flex; }
+
+  .post-header {
+    padding: 16px 20px 14px;
+    border-bottom: 0.5px solid var(--border);
+    flex-shrink: 0;
+  }
+  .post-title { font-size: 15px; font-weight: 500; color: var(--text); letter-spacing: -0.2px; }
+  .post-sub { font-size: 12px; color: var(--text-2); margin-top: 3px; }
+
+  .post-body { padding: 20px; flex: 1; }
+
+  .async-notice {
+    background: var(--amber-light);
+    border: 0.5px solid rgba(239,159,39,0.2);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex; align-items: flex-start; gap: 10px;
+    margin-bottom: 20px;
+  }
+  .notice-marker { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); margin-top: 5px; flex-shrink: 0; }
+  .notice-body { font-size: 12px; color: #FAC775; line-height: 1.55; }
+
+  .self-assess { display: flex; gap: 7px; margin-bottom: 22px; }
+  .sa-btn {
+    flex: 1; padding: 11px 4px;
+    border: 0.5px solid var(--border-med);
+    border-radius: var(--radius);
+    background: transparent; cursor: pointer;
+    text-align: center; font-size: 11px; font-family: var(--font);
+    color: var(--text-2);
+    transition: all 0.15s;
+  }
+  .sa-emoji { font-size: 20px; display: block; margin-bottom: 4px; }
+  .sa-btn:hover { border-color: var(--border-med); background: var(--surface-2); color: var(--text); }
+  .sa-btn.sel-0 { background: var(--red-light); border-color: rgba(224,82,82,0.25); color: #F09595; }
+  .sa-btn.sel-1 { background: var(--amber-light); border-color: rgba(239,159,39,0.25); color: #FAC775; }
+  .sa-btn.sel-2 { background: var(--green-light); border-color: rgba(93,202,165,0.3); color: var(--green-deep); }
+  .sa-btn.sel-3 { background: var(--green-light); border-color: var(--green); color: var(--green-deep); font-weight: 500; }
+
+  .post-chunks {
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .pc-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 0.5px solid var(--border);
+    background: var(--surface);
+  }
+  .pc-row:last-child { border-bottom: none; }
+  .pc-es { font-size: 13px; color: var(--text); flex: 1; }
+  .pc-status {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; flex-shrink: 0;
+  }
+  .pc-yes { background: var(--green-light); color: var(--green); }
+  .pc-pend { background: var(--surface-2); color: var(--text-3); font-size: 9px; }
+
+  .save-btn {
+    width: 100%; padding: 13px;
+    background: var(--green); color: #fff;
+    border: none; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500; font-family: var(--font);
+    cursor: pointer; transition: background 0.12s;
+    letter-spacing: -0.1px;
+  }
+  .save-btn:hover { background: var(--green-dark); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── DEFAULT UI ── -->
+  <div id="default-ui" style="display:flex;flex-direction:column;height:100%;">
+
+    <div class="topbar">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <circle cx="6" cy="6" r="4" stroke="white" stroke-width="1.5"/>
+            <circle cx="6" cy="6" r="1.5" fill="white"/>
+          </svg>
+        </div>
+        habla.practice
+      </div>
+      <div class="streak"><strong>12</strong> días seguidos</div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" onclick="switchTab('sesion',this)">sesión</button>
+      <button class="nav-btn" onclick="switchTab('frases',this)">frases</button>
+      <button class="nav-btn" onclick="switchTab('historial',this)">historial</button>
+    </nav>
+
+    <div class="content">
+
+      <!-- SESIÓN -->
+      <div id="tab-sesion">
+        <div class="stats">
+          <div class="stat"><div class="stat-l">esta semana</div><div class="stat-v">5</div><div class="stat-s">sesiones</div></div>
+          <div class="stat"><div class="stat-l">frases usadas</div><div class="stat-v">48</div><div class="stat-s">repeticiones</div></div>
+          <div class="stat"><div class="stat-l">pendientes hoy</div><div class="stat-v">2</div><div class="stat-s">escenarios</div></div>
+        </div>
+
+        <div class="label">escenario</div>
+        <div class="scenarios">
+          <div class="sc sel" onclick="selectSc(this)">
+            <div class="sc-icon">☕</div>
+            <div class="sc-body">
+              <div class="sc-name">Bar de barrio</div>
+              <div class="sc-conf">
+                <div class="conf-track"><div class="conf-fill" style="width:78%;background:var(--green);"></div></div>
+                <div class="due-pill due-today">repasa hoy</div>
+              </div>
+            </div>
+          </div>
+          <div class="sc" onclick="selectSc(this)">
+            <div class="sc-icon">🏪</div>
+            <div class="sc-body">
+              <div class="sc-name">Mercado / tienda</div>
+              <div class="sc-conf">
+                <div class="conf-track"><div class="conf-fill" style="width:42%;background:#EF9F27;"></div></div>
+                <div class="due-pill due-today">repasa hoy</div>
+              </div>
+            </div>
+          </div>
+          <div class="sc" onclick="selectSc(this)">
+            <div class="sc-icon">🏠</div>
+            <div class="sc-body">
+              <div class="sc-name">Casero / vecinos</div>
+              <div class="sc-conf">
+                <div class="conf-track"><div class="conf-fill" style="width:61%;background:var(--green-mid);"></div></div>
+                <div class="due-pill due-later">en 3 días</div>
+              </div>
+            </div>
+          </div>
+          <div class="sc" onclick="selectSc(this)">
+            <div class="sc-icon">🚇</div>
+            <div class="sc-body">
+              <div class="sc-name">Metro / transporte</div>
+              <div class="sc-conf">
+                <div class="conf-track"><div class="conf-fill" style="width:18%;background:#EF9F27;"></div></div>
+                <div class="due-pill due-today">repasa hoy</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="add-row"><div class="add-circle">+</div>nuevo escenario</div>
+
+        <!-- CHUNK PREVIEW for selected scenario -->
+        <div id="sc-chunk-preview" style="margin-top:18px;margin-bottom:18px;">
+          <div class="label">frases · <span id="sc-preview-name" style="text-transform:none;letter-spacing:0;">Bar de barrio</span></div>
+          <div id="sc-preview-pills" style="display:flex;flex-wrap:wrap;gap:6px;">
+            <div class="prev-pill">Venga, ponme…</div>
+            <div class="prev-pill">¿Qué va a ser?</div>
+            <div class="prev-pill">A ver si nos vemos</div>
+            <div class="prev-pill">¿Cómo lo llevas?</div>
+            <div class="prev-pill">Paso de eso</div>
+            <div class="prev-pill">No me raya</div>
+          </div>
+        </div>
+        <div class="label">duración</div>
+        <div class="dur-row">
+          <button class="dur" onclick="selDur(this,300)">5 min</button>
+          <button class="dur active" onclick="selDur(this,600)">10 min</button>
+          <button class="dur" onclick="selDur(this,900)">15 min</button>
+          <button class="dur" onclick="selDur(this,1200)">20 min</button>
+        </div>
+
+        <button class="start" onclick="startSession()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" stroke="rgba(255,255,255,0.4)"/><circle cx="7" cy="7" r="3" fill="white"/></svg>
+          empezar sesión
+        </button>
+      </div>
+
+      <!-- FRASES -->
+      <div id="tab-frases" style="display:none;">
+        <div class="filters">
+          <button class="fpill active" onclick="filterF('todo',this)">todo</button>
+          <button class="fpill" onclick="filterF('bar',this)">bar</button>
+          <button class="fpill" onclick="filterF('social',this)">social</button>
+          <button class="fpill" onclick="filterF('calle',this)">calle</button>
+        </div>
+        <div class="chunk-list" id="flist">
+          <div class="chunk" data-tag="bar"><div class="reps" style="background:rgba(29,158,117,0.2);color:#9FE1CB;">9</div><div class="chunk-body"><div class="chunk-es">Venga, ponme un cortado</div><div class="chunk-gloss">pedir con naturalidad</div></div><div class="ctag t-bar">bar</div></div>
+          <div class="chunk" data-tag="bar"><div class="reps" style="background:rgba(29,158,117,0.2);color:#9FE1CB;">7</div><div class="chunk-body"><div class="chunk-es">¿Qué va a ser?</div><div class="chunk-gloss">pregunta del camarero</div></div><div class="ctag t-bar">bar</div></div>
+          <div class="chunk" data-tag="social"><div class="reps" style="background:rgba(239,159,39,0.15);color:#FAC775;">3</div><div class="chunk-body"><div class="chunk-es">A ver si nos vemos</div><div class="chunk-gloss">quedada no comprometida</div></div><div class="ctag t-social">social</div></div>
+          <div class="chunk" data-tag="calle"><div class="reps" style="background:var(--surface-3);color:var(--text-3);">0</div><div class="chunk-body"><div class="chunk-es">No me raya</div><div class="chunk-gloss">no me llama la atención</div></div><div class="ctag t-calle">calle</div></div>
+          <div class="chunk" data-tag="calle"><div class="reps" style="background:rgba(239,159,39,0.15);color:#FAC775;">2</div><div class="chunk-body"><div class="chunk-es">Paso de eso</div><div class="chunk-gloss">rechazo informal</div></div><div class="ctag t-calle">calle</div></div>
+          <div class="chunk" data-tag="social"><div class="reps" style="background:rgba(29,158,117,0.2);color:#9FE1CB;">6</div><div class="chunk-body"><div class="chunk-es">¿Cómo lo llevas?</div><div class="chunk-gloss">preguntar cómo está alguien</div></div><div class="ctag t-social">social</div></div>
+          <div class="chunk" data-tag="calle"><div class="reps" style="background:var(--surface-3);color:var(--text-3);">1</div><div class="chunk-body"><div class="chunk-es">Está tirado / Está chupado</div><div class="chunk-gloss">es muy fácil</div></div><div class="ctag t-calle">calle</div></div>
+          <div class="chunk" data-tag="social"><div class="reps" style="background:rgba(239,159,39,0.15);color:#FAC775;">4</div><div class="chunk-body"><div class="chunk-es">Me quedo con las ganas</div><div class="chunk-gloss">quedarse sin algo deseado</div></div><div class="ctag t-social">social</div></div>
+        </div>
+        <div class="add-row" style="margin-top:10px;"><div class="add-circle">+</div>nueva frase</div>
+      </div>
+
+      <!-- HISTORIAL -->
+      <div id="tab-historial" style="display:none;">
+        <div class="label">esta semana</div>
+        <div class="week">
+          <div class="wday"><div class="wlabel">L</div><div class="wdot wd-done">1</div></div>
+          <div class="wday"><div class="wlabel">M</div><div class="wdot wd-done">1</div></div>
+          <div class="wday"><div class="wlabel">X</div><div class="wdot wd-done">2</div></div>
+          <div class="wday"><div class="wlabel">J</div><div class="wdot wd-empty">–</div></div>
+          <div class="wday"><div class="wlabel">V</div><div class="wdot wd-done">1</div></div>
+          <div class="wday"><div class="wlabel">S</div><div class="wdot wd-today">✓</div></div>
+          <div class="wday"><div class="wlabel">D</div><div class="wdot wd-empty">–</div></div>
+        </div>
+        <div class="label">sesiones recientes</div>
+        <div class="hist-list">
+          <div class="hist"><div class="hist-date">Hoy</div><div class="hist-body"><div class="hist-sc">Bar de barrio · 10 min</div><div class="hist-meta">6 / 8 frases · procesando…</div></div><div class="hist-delta" style="color:var(--amber);">⏳</div></div>
+          <div class="hist"><div class="hist-date">Vie</div><div class="hist-body"><div class="hist-sc">Mercado / tienda · 10 min</div><div class="hist-meta">4 / 6 frases desplegadas</div></div><div class="hist-delta delta-up">+4%</div></div>
+          <div class="hist"><div class="hist-date">Mié</div><div class="hist-body"><div class="hist-sc">Casero / vecinos · 15 min</div><div class="hist-meta">3 / 5 frases desplegadas</div></div><div class="hist-delta delta-dn">−2%</div></div>
+          <div class="hist"><div class="hist-date">Mié</div><div class="hist-body"><div class="hist-sc">Bar de barrio · 10 min</div><div class="hist-meta">8 / 8 frases desplegadas</div></div><div class="hist-delta delta-up">+9%</div></div>
+          <div class="hist"><div class="hist-date">Mar</div><div class="hist-body"><div class="hist-sc">Metro / transporte · 5 min</div><div class="hist-meta">2 / 4 frases desplegadas</div></div><div class="hist-delta delta-up">+2%</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ LIVE SESSION SCREEN ══ -->
+  <div class="session-screen" id="sess-screen">
+    <div class="sess-header">
+      <div class="sess-scenario">Bar de barrio</div>
+      <div class="sess-timer" id="timer">10:00</div>
+    </div>
+
+    <div class="agent-zone">
+      <div class="orb-wrap">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="orb"><div class="orb-core"></div></div>
+      </div>
+      <div class="voice-bars">
+        <div class="vbar" style="animation-delay:0s;"></div>
+        <div class="vbar" style="animation-delay:0.11s;"></div>
+        <div class="vbar" style="animation-delay:0.24s;"></div>
+        <div class="vbar" style="animation-delay:0.06s;"></div>
+        <div class="vbar" style="animation-delay:0.19s;"></div>
+        <div class="vbar" style="animation-delay:0.03s;"></div>
+        <div class="vbar" style="animation-delay:0.15s;"></div>
+        <div class="vbar" style="animation-delay:0.29s;"></div>
+      </div>
+      <div class="agent-label" id="agent-label">agente escuchando…</div>
+    </div>
+
+    <div class="chunk-panel">
+      <div class="cp-header">
+        <span class="cp-label">frases del escenario</span>
+        <span class="cp-count" id="cp-count">0 / 6</span>
+      </div>
+      <div class="cpills" id="cpills">
+        <div class="cpill"><div class="cpill-dot"></div>Venga, ponme…</div>
+        <div class="cpill"><div class="cpill-dot"></div>¿Qué va a ser?</div>
+        <div class="cpill"><div class="cpill-dot"></div>A ver si nos vemos</div>
+        <div class="cpill"><div class="cpill-dot"></div>¿Cómo lo llevas?</div>
+        <div class="cpill"><div class="cpill-dot"></div>Paso de eso</div>
+        <div class="cpill"><div class="cpill-dot"></div>No me raya</div>
+      </div>
+    </div>
+
+    <div class="sess-footer">
+      <button class="btn-sec" onclick="endSession()">terminar</button>
+      <button class="btn-pri" id="pause-btn" onclick="togglePause()">pausa</button>
+    </div>
+  </div>
+
+  <!-- ══ POST-SESSION SCREEN ══ -->
+  <div class="post-screen" id="post-screen">
+    <div class="post-header">
+      <div class="post-title">resumen de sesión</div>
+      <div class="post-sub">Bar de barrio · 10 min</div>
+    </div>
+    <div class="post-body">
+      <div class="async-notice">
+        <div class="notice-marker"></div>
+        <div class="notice-body">La transcripción se está analizando. Las frases desplegadas se confirmarán en breve y actualizarán tu confianza en este escenario.</div>
+      </div>
+
+      <div class="label">¿cómo fue?</div>
+      <div class="self-assess" style="margin-bottom:22px;">
+        <button class="sa-btn" onclick="selConf(this,0)"><span class="sa-emoji">😬</span>difícil</button>
+        <button class="sa-btn" onclick="selConf(this,1)"><span class="sa-emoji">🤔</span>regular</button>
+        <button class="sa-btn sel-2" onclick="selConf(this,2)"><span class="sa-emoji">🙂</span>bien</button>
+        <button class="sa-btn" onclick="selConf(this,3)"><span class="sa-emoji">😎</span>fluido</button>
+      </div>
+
+      <div class="label">frases del escenario</div>
+      <div class="post-chunks">
+        <div class="pc-row"><div class="pc-es">Venga, ponme un cortado</div><div class="pc-status pc-pend">⏳</div></div>
+        <div class="pc-row"><div class="pc-es">¿Qué va a ser?</div><div class="pc-status pc-pend">⏳</div></div>
+        <div class="pc-row"><div class="pc-es">A ver si nos vemos</div><div class="pc-status pc-pend">⏳</div></div>
+        <div class="pc-row"><div class="pc-es">¿Cómo lo llevas?</div><div class="pc-status pc-pend">⏳</div></div>
+        <div class="pc-row"><div class="pc-es">Paso de eso</div><div class="pc-status pc-pend">⏳</div></div>
+        <div class="pc-row"><div class="pc-es">No me raya</div><div class="pc-status pc-pend">⏳</div></div>
+      </div>
+
+      <button class="save-btn" onclick="saveSession()">guardar sesión</button>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+  let selDurSecs = 600;
+  let remaining = 600;
+  let timerInt = null;
+  let paused = false;
+  let hitCount = 0;
+  let simTimeouts = [];
+  let statusInt = null;
+
+  function switchTab(name, el) {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    ['sesion','frases','historial'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+    });
+  }
+
+  const scData = {
+    0: { name: 'Bar de barrio', chunks: ['Venga, ponme…','¿Qué va a ser?','A ver si nos vemos','¿Cómo lo llevas?','Paso de eso','No me raya'] },
+    1: { name: 'Mercado / tienda', chunks: ['¿A cuánto está?','Me lo pone a…','No me convence','¿Tiene algo más barato?','Me lo llevo','Está muy caro'] },
+    2: { name: 'Casero / vecinos', chunks: ['¿Cuándo lo arregla?','Llevamos semanas así','Buenas, ¿todo bien?','Ya hablamos','Me tiene harto','Venga, hasta luego'] },
+    3: { name: 'Metro / transporte', chunks: ['¿Dónde para el…?','¿Cuánto tarda?','Me he pasado de parada','Oiga, perdona','¿Va al centro?','Muchas gracias'] },
+  };
+
+  function selectSc(el) {
+    document.querySelectorAll('.sc').forEach((c,i) => {
+      c.classList.remove('sel');
+      c._scIdx = i;
+    });
+    el.classList.add('sel');
+    const idx = Array.from(document.querySelectorAll('.sc')).indexOf(el);
+    const data = scData[idx] || scData[0];
+    document.getElementById('sc-preview-name').textContent = data.name;
+    const pillsEl = document.getElementById('sc-preview-pills');
+    pillsEl.innerHTML = data.chunks.map(c => `<div class="prev-pill">${c}</div>`).join('');
+  }
+
+  function selDur(el, secs) {
+    document.querySelectorAll('.dur').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    selDurSecs = secs;
+  }
+
+  function filterF(tag, el) {
+    document.querySelectorAll('.fpill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('#flist .chunk').forEach(c => {
+      c.style.display = (tag === 'todo' || c.dataset.tag === tag) ? 'flex' : 'none';
+    });
+  }
+
+  function startSession() {
+    remaining = selDurSecs;
+    hitCount = 0;
+    paused = false;
+    document.getElementById('pause-btn').textContent = 'pausa';
+    document.querySelectorAll('.cpill').forEach(p => p.classList.remove('hit'));
+    updateTimer(); updateCount();
+    document.getElementById('default-ui').style.display = 'none';
+    document.getElementById('sess-screen').classList.add('show');
+    document.getElementById('post-screen').classList.remove('show');
+    startTimer();
+    scheduleSimDetections();
+    startStatusCycle();
+  }
+
+  function startTimer() {
+    clearInterval(timerInt);
+    timerInt = setInterval(() => {
+      if (!paused) {
+        remaining--;
+        updateTimer();
+        if (remaining <= 0) { clearInterval(timerInt); endSession(); }
+      }
+    }, 1000);
+  }
+
+  function updateTimer() {
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    const el = document.getElementById('timer');
+    el.textContent = m + ':' + String(s).padStart(2,'0');
+    el.className = 'sess-timer' + (remaining < 60 ? ' low' : '');
+  }
+
+  function updateCount() {
+    document.getElementById('cp-count').textContent = hitCount + ' / 6';
+  }
+
+  function scheduleSimDetections() {
+    simTimeouts.forEach(clearTimeout);
+    simTimeouts = [];
+    const hits = [
+      { delay: 6000, idx: 2 },
+      { delay: 15000, idx: 5 },
+      { delay: 26000, idx: 3 },
+    ];
+    hits.forEach(h => {
+      const t = setTimeout(() => {
+        if (!paused) {
+          const pills = document.querySelectorAll('.cpill');
+          if (pills[h.idx] && !pills[h.idx].classList.contains('hit')) {
+            pills[h.idx].classList.add('hit');
+            hitCount++;
+            updateCount();
+          }
+        }
+      }, h.delay);
+      simTimeouts.push(t);
+    });
+  }
+
+  function startStatusCycle() {
+    clearInterval(statusInt);
+    const states = ['agente hablando…','agente escuchando…','agente hablando…','agente pensando…','agente escuchando…'];
+    let i = 0;
+    statusInt = setInterval(() => {
+      i = (i+1) % states.length;
+      const el = document.getElementById('agent-label');
+      if (el) el.textContent = states[i];
+    }, 3000);
+  }
+
+  function togglePause() {
+    paused = !paused;
+    document.getElementById('pause-btn').textContent = paused ? 'reanudar' : 'pausa';
+  }
+
+  function endSession() {
+    clearInterval(timerInt);
+    clearInterval(statusInt);
+    simTimeouts.forEach(clearTimeout);
+    document.getElementById('sess-screen').classList.remove('show');
+    document.getElementById('post-screen').classList.add('show');
+  }
+
+  function selConf(el, idx) {
+    document.querySelectorAll('.sa-btn').forEach(b => {
+      b.className = 'sa-btn';
+    });
+    el.classList.add('sel-' + idx);
+  }
+
+  function saveSession() {
+    document.getElementById('post-screen').classList.remove('show');
+    document.getElementById('default-ui').style.display = 'flex';
+  }
+</script>
+</body>
+</html>

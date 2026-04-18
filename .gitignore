@@ -3,3 +3,10 @@ dist/
 data/
 .env
 .env.local
+
+# Python / uv
+backend/.venv/
+backend/**/__pycache__/
+backend/.ruff_cache/
+backend/.pytest_cache/
+**/*.pyc

@@ -4,13 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:frontend": "cd frontend && npx vite",
-    "dev:backend": "node --env-file=.env --watch backend/src/index.js",
+    "dev": "concurrently -n be,fe -c blue,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "uv run --directory backend uvicorn habla.main:app --reload --port 3000",
     "build": "cd frontend && npm run build",
-    "start": "cd backend && node src/index.js",
-    "format": "prettier --write 'frontend/src/**/*.{js,jsx}' 'backend/src/**/*.js'",
-    "format:check": "prettier --check 'frontend/src/**/*.{js,jsx}' 'backend/src/**/*.js'"
+    "start": "uv run --directory backend uvicorn habla.main:app --host 0.0.0.0 --port ${PORT:-3000}",
+    "format": "prettier --write 'frontend/src/**/*.{js,jsx}' && uv run --directory backend ruff format",
+    "format:check": "prettier --check 'frontend/src/**/*.{js,jsx}' && uv run --directory backend ruff format --check && uv run --directory backend ruff check",
+    "lint": "uv run --directory backend ruff check",
+    "typecheck": "uv run --directory backend pyright"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
