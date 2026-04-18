@@ -1,43 +1,35 @@
 # habla.practice
 
-A Spanish language speaking practice app with voice recording, text-to-speech playback, and vocabulary management. Built as a monorepo with a React frontend and Hono/Node.js backend.
+A total-immersion language practice tool for colloquial Madrid Spanish. The learner picks a scenario (neighbourhood bar, market, landlord, metro) and holds a live role-play with a voice agent — no English, no translation hints. Target phrases ("chunks") are visible as pills at the bottom of the session screen; after the session, a transcript-based judge determines which were actually deployed, and an SM-2 SRS per scenario surfaces what's due next.
 
-## Features
+This repo is mid-rewrite. See `docs/specs/OVERVIEW.md`, `docs/specs/ARCHITECTURE.md`, and `docs/specs/ROADMAP.md` for the six-phase plan.
 
-- **Speaking prompts** -- practice explaining topics in your own words or drilling key phrases
-- **Text-to-speech** -- hear native pronunciation via Cartesia AI
-- **Voice recording** -- record yourself, play it back, and rate your performance
-- **Vocabulary management** -- add, edit, and delete topics and chunks inline from the Explorar page
-- **Progress tracking** -- daily streaks, session history, and self-ratings
-- **Dark mode** -- automatic light/dark theme based on system preference
+## Stack
 
-## Getting Started
+- **Frontend**: React 19 + Vite 6
+- **Backend**: Python 3.12 + FastAPI, managed with [uv](https://docs.astral.sh/uv/). SQLite via `aiosqlite` (WAL). Pipecat voice pipeline lands in Phase 3 (OpenAI Realtime is _not_ used — the pipeline is STT + LLM + TTS with smart-turn VAD).
+- **External services** (Phase 3+): Groq Whisper (STT), Anthropic Claude (agent Haiku + judge Sonnet/Opus), Cartesia (streaming TTS).
+- **Deployment**: Fly.io, multi-stage Docker (Node builds frontend → Python runs backend).
+
+## Getting started
 
 ### Prerequisites
 
 - Node.js 20+
-- A [Cartesia](https://cartesia.ai) API key
+- Python 3.12
+- `uv` — install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
 ### Install
 
 ```bash
-npm ci
-cd frontend && npm ci
-cd ../backend && npm ci
+npm install
+(cd frontend && npm install)
+(cd backend && uv sync)
 ```
 
 ### Configure
 
-Create a `.env` file at the project root:
-
-```
-CARTESIA_API_KEY=your_key_here
-```
-
-Optional variables:
-
-- `DATA_DIR` -- directory for SQLite DB and recordings (default: `./data`)
-- `PORT` -- backend port (default: `3000`)
+Copy `.env.example` to `.env` at the repo root and fill in the keys you have. Phase 1 doesn't consume any of them; they become load-bearing in Phase 3.
 
 ### Run
 
@@ -45,53 +37,39 @@ Optional variables:
 npm run dev
 ```
 
-This starts the Vite dev server on port 5173 (proxying `/api` to the backend) and the backend on port 3000 concurrently.
+Starts Vite (port 5173, proxies `/api` → backend) and uvicorn (port 3000) concurrently. Logs are prefixed `be |` / `fe |`.
 
-### Build & Production
+### Build & production
 
 ```bash
-npm run build    # builds the frontend
-npm run start    # runs the backend serving the built frontend
+npm run build    # builds the frontend into frontend/dist/
+npm run start    # runs uvicorn bound to 0.0.0.0, serving the built frontend
 ```
 
-## Architecture
+### Lint, format, typecheck
 
-**Frontend** (`frontend/`): React 19 + Vite single-page app with three views -- practice, browse (Explorar), and progress. Uses browser MediaRecorder for audio capture and localStorage for session/streak data.
+```bash
+npm run format         # prettier (frontend) + ruff format (backend)
+npm run format:check   # both, check-only (runs in CI)
+npm run lint           # ruff check
+npm run typecheck      # pyright
+```
 
-**Backend** (`backend/`): Hono on `@hono/node-server` with SQLite (`better-sqlite3`, WAL mode). Serves API routes and built frontend static files. Auto-seeds the database on first run.
+## Current API (Phase 1)
 
-### API
+| Method | Endpoint                 | Description                                   |
+| ------ | ------------------------ | --------------------------------------------- |
+| GET    | `/api/scenarios`         | List scenarios with their chunks (m:n)        |
+| POST   | `/api/scenarios`         | Create a scenario (`{slug, name, icon, chunk_ids}`) |
+| PUT    | `/api/scenarios/:id`     | Update scenario + replace chunk list          |
+| DELETE | `/api/scenarios/:id`     | Delete scenario (cascades m:n)                |
+| GET    | `/api/chunks`            | List chunks with rep counts (zero in Phase 1) |
+| POST   | `/api/chunks`            | Create a chunk (`{text_es, gloss_es?, tags}`) |
+| PUT    | `/api/chunks/:id`        | Replace chunk (full fields)                   |
+| DELETE | `/api/chunks/:id`        | Delete chunk                                  |
 
-| Method | Endpoint              | Description                          |
-| ------ | --------------------- | ------------------------------------ |
-| GET    | `/api/topics`         | List topics grouped by category      |
-| POST   | `/api/topics`         | Create a topic                       |
-| PUT    | `/api/topics/:id`     | Update a topic                       |
-| DELETE | `/api/topics/:id`     | Delete a topic                       |
-| GET    | `/api/chunks`         | List chunks grouped by category      |
-| POST   | `/api/chunks`         | Create a chunk                       |
-| PUT    | `/api/chunks/:id`     | Update a chunk                       |
-| DELETE | `/api/chunks/:id`     | Delete a chunk                       |
-| POST   | `/api/tts`            | Text-to-speech (proxies to Cartesia) |
-| POST   | `/api/upload`         | Upload a recording                   |
-| GET    | `/api/recordings/:id` | Retrieve a recording                 |
+WebSocket voice-session endpoint, sessions, streak, judge, and SRS land in later phases.
 
 ## Deployment
 
-Deployed on Fly.io with a Docker multi-stage build. A persistent volume at `/data` stores the SQLite database and audio recordings. Config lives in `fly.toml` and `Dockerfile`.
-
-## Roadmap
-
-- **Speech-to-text** -- transcribe recordings with STT to enable conversational practice
-- **LLM-powered conversations** -- use an LLM to generate dynamic practice dialogues around chunks and topics
-- **Recording review** -- browse and replay past recordings from the progress view
-- **Progress analysis** -- analyze recordings over time to measure fluency, accuracy, and improvement
-
-## Formatting
-
-```bash
-npm run format         # auto-fix with Prettier
-npm run format:check   # check only (runs in CI)
-```
-
-Prettier config: double quotes, semicolons, trailing commas, 100 char width, 2-space indent.
+Fly.io with a multi-stage Dockerfile. Persistent volume `habla_data` mounted at `/data` holds `habla.db` (and, starting Phase 3, the Pipecat smart-turn model cache). Region `fra`. Config lives in `fly.toml` and `Dockerfile`.
