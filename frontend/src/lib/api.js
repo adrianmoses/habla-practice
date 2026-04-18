@@ -1,9 +1,70 @@
-export async function uploadRecording(blob, sessionId, metadata) {
-  const form = new FormData();
-  form.append("audio", blob, `${sessionId}.webm`);
-  form.append("sessionId", String(sessionId));
-  form.append("metadata", JSON.stringify(metadata));
-  const res = await fetch("/api/upload", { method: "POST", body: form });
-  if (!res.ok) throw new Error("Upload failed");
+export class ApiError extends Error {
+  constructor(status, detail) {
+    super(typeof detail === "string" ? detail : `HTTP ${status}`);
+    this.status = status;
+    this.detail = detail;
+  }
+}
+
+async function request(path, options = {}) {
+  const res = await fetch(path, {
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    ...options,
+  });
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try {
+      const body = await res.json();
+      if (body && body.detail !== undefined) detail = body.detail;
+    } catch {
+      // non-JSON body; keep default
+    }
+    throw new ApiError(res.status, detail);
+  }
+  if (res.status === 204) return null;
   return res.json();
+}
+
+export function listScenarios() {
+  return request("/api/scenarios");
+}
+
+export function createScenario(body) {
+  return request("/api/scenarios", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateScenario(id, body) {
+  return request(`/api/scenarios/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export function deleteScenario(id) {
+  return request(`/api/scenarios/${id}`, { method: "DELETE" });
+}
+
+export function listChunks() {
+  return request("/api/chunks");
+}
+
+export function createChunk(body) {
+  return request("/api/chunks", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateChunk(id, body) {
+  return request(`/api/chunks/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export function deleteChunk(id) {
+  return request(`/api/chunks/${id}`, { method: "DELETE" });
 }

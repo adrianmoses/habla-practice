@@ -121,12 +121,12 @@ The whole Node backend is removed in this phase. By the end, the app boots on a 
 | 106 | Starter seed: 4 scenarios × ~6 Madrid chunks                                     | P1    | implemented |
 | 107 | `docs/prompts/madrid-chunk-seed.md` chunk-generation prompt                      | P1    | implemented |
 | 108 | CRUD routes: `/api/scenarios`, `/api/chunks` (with m:n link)                     | P1    | implemented |
-| 201 | Design tokens ported from `docs/artifacts/habla-practice.html`                   | P2    | planned    |
-| 202 | Three-tab shell + streak pill                                                    | P2    | planned    |
-| 203 | `SesionHome` view (stats, scenario cards, preview pills, duration)               | P2    | planned    |
-| 204 | `Frases` view with rep counter + tag filter                                      | P2    | planned    |
-| 205 | `Historial` view (weekly grid + recent sessions list)                            | P2    | planned    |
-| 206 | "Nuevo escenario" creation UI                                                    | P2    | planned    |
+| 201 | Design tokens ported from `docs/artifacts/habla-practice.html`                   | P2    | implemented |
+| 202 | Three-tab shell + streak pill                                                    | P2    | implemented |
+| 203 | `SesionHome` view (stats, scenario cards, preview pills, duration)               | P2    | implemented |
+| 204 | `Frases` view with rep counter + tag filter                                      | P2    | implemented |
+| 205 | `Historial` view (weekly grid + recent sessions list)                            | P2    | implemented |
+| 206 | "Nuevo escenario" creation UI                                                    | P2    | implemented |
 | 301 | Pipecat installed + smart-turn model baked into Docker image                     | P3    | planned    |
 | 302 | `agent/prompt.py` builder + `docs/prompts/agent-system.md`                       | P3    | planned    |
 | 303 | `agent/pipeline.py`: Silero VAD + smart-turn → Groq STT → Claude Haiku → Cartesia TTS | P3 | planned   |
@@ -175,3 +175,5 @@ Fly.io deployment + GitHub Actions deploy carry forward unchanged from the previ
 | 2026-04-18 | Pivot: scenario-based voice-agent role-play with OpenAI Realtime + Whisper + Anthropic judge + SM-2 SRS. Monologue flow deprecated. Six-phase refactor plan added. |
 | 2026-04-18 | Architecture pivot: full Python rewrite on FastAPI + Pipecat (smart-turn VAD, Groq Whisper STT, Claude Haiku agent, Cartesia streaming TTS). Hono/Node backend deprecated entirely. Audio storage and post-session Whisper pass dropped — Pipecat emits structured turn-by-turn transcripts live. Phase 1 expanded to include the Python skeleton + Node teardown; Phase 5 simplified (judge only, no transcribe). |
 | 2026-04-18 | Phase 1 implemented on branch `feat/phase-1-python-migration`. Decision record: [`phase-1-python-migration/decision.md`](./phase-1-python-migration/decision.md). |
+| 2026-04-18 | Phase 2 spec drafted: [`phase-2-ui-shell/spec.md`](./phase-2-ui-shell/spec.md). Features 201–206 moved from `planned` → `in-progress`. |
+| 2026-04-18 | Phase 2 implemented on branch `feat/phase-2-ui-shell`. Decision record: [`phase-2-ui-shell/decision.md`](./phase-2-ui-shell/decision.md). Features 201–206 `in-progress` → `implemented`. |
