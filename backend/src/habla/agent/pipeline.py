@@ -24,6 +24,9 @@ from pipecat.processors.aggregators.llm_response_universal import (
     LLMUserAggregatorParams,
 )
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
+from pipecat.processors.frameworks.rtvi.observer import RTVIObserver
+from pipecat.processors.frameworks.rtvi.processor import RTVIProcessor
+from pipecat.serializers.protobuf import ProtobufFrameSerializer
 from pipecat.services.anthropic.llm import AnthropicLLMService, AnthropicLLMSettings
 from pipecat.services.cartesia.tts import CartesiaTTSService
 from pipecat.services.groq.stt import GroqSTTService
@@ -138,6 +141,10 @@ def build_pipeline(
             audio_out_sample_rate=OUTPUT_SAMPLE_RATE,
             add_wav_header=False,
             session_timeout=session_timeout_secs,
+            # The @pipecat-ai/websocket-transport browser client speaks Pipecat's
+            # protobuf frame protocol. Without this, the WS handshake succeeds
+            # but bot-side RTVI events never reach the browser.
+            serializer=ProtobufFrameSerializer(),
         ),
     )
 
@@ -187,9 +194,12 @@ def build_pipeline(
         ts = msg.timestamp or iso_now()
         turns.append(Turn(role="agent", text=text, started_at=ts, ended_at=ts))
 
+    rtvi = RTVIProcessor(transport=transport)
+
     pipeline = Pipeline(
         [
             transport.input(),
+            rtvi,
             stt,
             turn_capture,
             aggregator_user,
@@ -209,6 +219,7 @@ def build_pipeline(
             enable_metrics=True,
             enable_usage_metrics=True,
         ),
+        observers=[RTVIObserver(rtvi)],
     )
 
     return PipelineBundle(task=task, transport=transport, turns=turns, system_prompt_fingerprint=fp)
