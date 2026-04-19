@@ -7,7 +7,13 @@ from typing import Literal
 from fastapi import WebSocket
 from pipecat.audio.turn.smart_turn.local_smart_turn_v3 import LocalSmartTurnAnalyzerV3
 from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.frames.frames import Frame, TranscriptionFrame
+from pipecat.frames.frames import (
+    Frame,
+    TranscriptionFrame,
+    TTSAudioRawFrame,
+    TTSStartedFrame,
+    TTSStoppedFrame,
+)
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.llm_context import LLMContext
@@ -82,6 +88,31 @@ class TurnCapture(FrameProcessor):
                 )
             )
             self._user_turn_start = None
+        await self.push_frame(frame, direction)
+
+
+class TTSAudioTrace(FrameProcessor):
+    """Logs the TTS→transport audio path so we can tell if the server is producing audio
+    when the browser hears nothing. Cheap enough to leave on during Phase 3."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._bytes = 0
+        self._chunks = 0
+
+    async def process_frame(self, frame: Frame, direction: FrameDirection) -> None:
+        await super().process_frame(frame, direction)
+        if isinstance(frame, TTSStartedFrame):
+            self._bytes = 0
+            self._chunks = 0
+            log.info("tts: started")
+        elif isinstance(frame, TTSAudioRawFrame):
+            self._bytes += len(frame.audio)
+            self._chunks += 1
+            if self._chunks == 1:
+                log.info("tts: first audio chunk (%d bytes)", len(frame.audio))
+        elif isinstance(frame, TTSStoppedFrame):
+            log.info("tts: stopped — %d chunks, %d bytes total", self._chunks, self._bytes)
         await self.push_frame(frame, direction)
 
 
@@ -164,6 +195,7 @@ def build_pipeline(
             aggregator_user,
             llm,
             tts,
+            TTSAudioTrace(),
             transport.output(),
             aggregator_assistant,
         ]

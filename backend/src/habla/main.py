@@ -20,6 +20,10 @@ from habla.util import iso_now
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FRONTEND_DIST = REPO_ROOT / "frontend" / "dist"
 
+# Surface habla.* INFO logs by default. Pipecat uses loguru and is already verbose.
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.getLogger("habla").setLevel(logging.INFO)
+
 log = logging.getLogger(__name__)
 
 
