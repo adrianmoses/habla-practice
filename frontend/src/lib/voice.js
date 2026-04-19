@@ -66,10 +66,12 @@ export function createVoiceSession({ wsUrl }) {
         const preview =
           first && typeof first === "object"
             ? Object.fromEntries(
-                Object.entries(first).slice(0, 6).map(([k, v]) => [
-                  k,
-                  typeof v === "string" && v.length > 80 ? v.slice(0, 80) + "…" : v,
-                ]),
+                Object.entries(first)
+                  .slice(0, 6)
+                  .map(([k, v]) => [
+                    k,
+                    typeof v === "string" && v.length > 80 ? v.slice(0, 80) + "…" : v,
+                  ]),
               )
             : first;
         log(name, preview ?? "");
@@ -100,10 +102,7 @@ export function createVoiceSession({ wsUrl }) {
     log("start() called");
     try {
       await client.initDevices();
-      log("initDevices OK", {
-        mic: client.selectedMic?.()?.label,
-        micEnabled: client.isMicEnabled?.(),
-      });
+      log("initDevices OK");
     } catch (err) {
       log("initDevices FAILED", err);
       const code = err?.name === "NotAllowedError" ? "mic-denied" : "mic-error";
