@@ -68,3 +68,17 @@ export function updateChunk(id, body) {
 export function deleteChunk(id) {
   return request(`/api/chunks/${id}`, { method: "DELETE" });
 }
+
+export function startSession({ scenario_id, duration_sec }) {
+  return request("/api/sessions/start", {
+    method: "POST",
+    body: JSON.stringify({ scenario_id, duration_sec }),
+  });
+}
+
+export function assessSession(id, { self_assessment }) {
+  return request(`/api/sessions/${id}/assess`, {
+    method: "POST",
+    body: JSON.stringify({ self_assessment }),
+  });
+}

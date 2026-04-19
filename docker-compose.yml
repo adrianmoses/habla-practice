@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: .
+      target: dev
+    image: habla-backend:dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATA_DIR: /data
+      PORT: "3000"
+    volumes:
+      - ./backend/src:/app/backend/src
+      - ./backend/tests:/app/backend/tests
+      - ./backend/pyproject.toml:/app/backend/pyproject.toml
+      - ./backend/uv.lock:/app/backend/uv.lock
+      - ./data:/data
+      - ./docs:/app/docs
+    restart: unless-stopped

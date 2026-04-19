@@ -6,13 +6,14 @@
   "scripts": {
     "dev": "concurrently -n be,fe -c blue,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "uv run --directory backend uvicorn habla.main:app --reload --port 3000",
+    "dev:backend": "docker compose up backend",
     "build": "cd frontend && npm run build",
-    "start": "uv run --directory backend uvicorn habla.main:app --host 0.0.0.0 --port ${PORT:-3000}",
-    "format": "prettier --write 'frontend/src/**/*.{js,jsx}' && uv run --directory backend ruff format",
-    "format:check": "prettier --check 'frontend/src/**/*.{js,jsx}' && uv run --directory backend ruff format --check && uv run --directory backend ruff check",
-    "lint": "uv run --directory backend ruff check",
-    "typecheck": "uv run --directory backend pyright"
+    "start": "docker compose up backend",
+    "format": "prettier --write 'frontend/src/**/*.{js,jsx}' && docker compose run --rm backend uv run ruff format",
+    "format:check": "prettier --check 'frontend/src/**/*.{js,jsx}' && docker compose run --rm backend uv run ruff format --check && docker compose run --rm backend uv run ruff check",
+    "lint": "docker compose run --rm backend uv run ruff check",
+    "typecheck": "docker compose run --rm backend uv run pyright",
+    "test:backend": "docker compose run --rm backend uv run pytest"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

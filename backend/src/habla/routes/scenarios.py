@@ -42,7 +42,7 @@ class ScenarioWrite(BaseModel):
 DbDep = Annotated[aiosqlite.Connection, Depends(get_db)]
 
 
-async def _load_scenario(conn: aiosqlite.Connection, scenario_id: int) -> ScenarioOut:
+async def load_scenario(conn: aiosqlite.Connection, scenario_id: int) -> ScenarioOut:
     cur = await conn.execute(
         "SELECT id, slug, name, icon, created_at FROM scenarios WHERE id = ?",
         (scenario_id,),
@@ -164,7 +164,7 @@ async def create_scenario(payload: ScenarioWrite, conn: DbDep) -> ScenarioOut:
         if "UNIQUE" in str(exc):
             raise HTTPException(409, f"slug '{payload.slug}' already exists") from exc
         raise
-    return await _load_scenario(conn, scenario_id)
+    return await load_scenario(conn, scenario_id)
 
 
 @router.put("/scenarios/{scenario_id}", response_model=ScenarioOut)
@@ -191,7 +191,7 @@ async def update_scenario(scenario_id: int, payload: ScenarioWrite, conn: DbDep)
         if "UNIQUE" in str(exc):
             raise HTTPException(409, f"slug '{payload.slug}' already exists") from exc
         raise
-    return await _load_scenario(conn, scenario_id)
+    return await load_scenario(conn, scenario_id)
 
 
 @router.delete("/scenarios/{scenario_id}", status_code=204)

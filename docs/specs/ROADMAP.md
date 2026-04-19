@@ -127,15 +127,15 @@ The whole Node backend is removed in this phase. By the end, the app boots on a 
 | 204 | `Frases` view with rep counter + tag filter                                      | P2    | implemented |
 | 205 | `Historial` view (weekly grid + recent sessions list)                            | P2    | implemented |
 | 206 | "Nuevo escenario" creation UI                                                    | P2    | implemented |
-| 301 | Pipecat installed + smart-turn model baked into Docker image                     | P3    | planned    |
-| 302 | `agent/prompt.py` builder + `docs/prompts/agent-system.md`                       | P3    | planned    |
-| 303 | `agent/pipeline.py`: Silero VAD + smart-turn → Groq STT → Claude Haiku → Cartesia TTS | P3 | planned   |
-| 304 | `WS /ws/session/{id}` endpoint + per-connection pipeline                         | P3    | planned    |
-| 305 | `POST /api/sessions/start` + `POST /api/sessions/:id/assess`                     | P3    | planned    |
-| 306 | Frontend `lib/voice.js` (Pipecat browser client wrapper)                         | P3    | planned    |
-| 307 | `LiveSession` view (orb, timer, chunk pills, pause/end)                          | P3    | planned    |
-| 308 | `PostSession` view (self-assessment + async notice + chunk pendiente list)       | P3    | planned    |
-| 309 | Latency measurement on real Fly deploy: TTFB ≤ 700ms per turn                    | P3    | planned    |
+| 301 | Pipecat installed (smart-turn model bundled with package — no Docker bake needed)| P3    | implemented |
+| 302 | `agent/prompt.py` builder + `docs/prompts/agent-system.md`                       | P3    | implemented |
+| 303 | `agent/pipeline.py`: Silero VAD + smart-turn → Groq STT → Claude Haiku → Cartesia TTS | P3 | implemented |
+| 304 | `WS /ws/session/{id}` endpoint + per-connection pipeline                         | P3    | implemented |
+| 305 | `POST /api/sessions/start` + `POST /api/sessions/:id/assess`                     | P3    | implemented |
+| 306 | Frontend `lib/voice.js` (Pipecat browser client wrapper)                         | P3    | implemented |
+| 307 | `LiveSession` view (orb, timer, chunk pills, terminar — `pausa` dropped)         | P3    | implemented |
+| 308 | `PostSession` view (self-assessment POST + async notice + chunk pendiente list)  | P3    | implemented |
+| 309 | Latency measurement on real Fly deploy: TTFB ≤ 700ms per turn                    | P3    | in-progress |
 | 401 | `GET /api/streak` (current streak, weekly grid, dashboard counters)              | P4    | planned    |
 | 402 | Server-side streak computation on session end                                    | P4    | planned    |
 | 501 | Analysis queue worker (asyncio, lifespan-managed, restart-durable)               | P5    | planned    |
@@ -177,3 +177,5 @@ Fly.io deployment + GitHub Actions deploy carry forward unchanged from the previ
 | 2026-04-18 | Phase 1 implemented on branch `feat/phase-1-python-migration`. Decision record: [`phase-1-python-migration/decision.md`](./phase-1-python-migration/decision.md). |
 | 2026-04-18 | Phase 2 spec drafted: [`phase-2-ui-shell/spec.md`](./phase-2-ui-shell/spec.md). Features 201–206 moved from `planned` → `in-progress`. |
 | 2026-04-18 | Phase 2 implemented on branch `feat/phase-2-ui-shell`. Decision record: [`phase-2-ui-shell/decision.md`](./phase-2-ui-shell/decision.md). Features 201–206 `in-progress` → `implemented`. |
+| 2026-04-19 | Phase 3 spec drafted: [`phase-3-pipecat-pipeline/spec.md`](./phase-3-pipecat-pipeline/spec.md). Features 301–309 moved from `planned` → `in-progress`. |
+| 2026-04-19 | Phase 3 implemented on branch `feat/phase-3-pipecat-pipeline`. Decision record: [`phase-3-pipecat-pipeline/decision.md`](./phase-3-pipecat-pipeline/decision.md). Features 301–308 `in-progress` → `implemented`. Feature 309 (TTFB measurement on Fly) stays `in-progress` — deferred to first deploy. Backend now runs in Linux Docker (Pipecat can't install on Intel Mac host); `npm run dev:backend` = `docker compose up backend`. |

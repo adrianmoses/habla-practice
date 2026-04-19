@@ -9,7 +9,28 @@ dependencies = [
     "aiosqlite>=0.20",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
+    "pipecat-ai[cartesia,anthropic,groq,silero,local-smart-turn]>=1.0",
+    "anthropic>=0.45",
+    "torch>=2.2",
+    "torchaudio>=2.2",
 ]
+
+# Runtime is Linux only (Fly + Docker dev). Mac hosts can't install Pipecat's
+# VAD/smart-turn stack directly — we don't pretend the lock resolves there.
+# `environments` restricts resolution to Linux so the lockfile is stable;
+# `uv sync` on Mac will still fail at install time — use Docker for dev.
+[tool.uv]
+environments = ["sys_platform == 'linux'"]
+
+# Keep torch CPU-only to avoid pulling ~2.7GB of NVIDIA CUDA wheels.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchaudio = { index = "pytorch-cpu" }
 
 [dependency-groups]
 dev = [

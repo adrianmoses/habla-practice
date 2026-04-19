@@ -66,15 +66,22 @@ export default function App() {
     setOverlay({ kind: "live", scenario: selectedScenario, durationSec });
   }, [selectedScenario, durationSec]);
 
-  const handleLiveEnd = useCallback(() => {
-    setOverlay((prev) =>
-      prev?.kind === "live" ? { kind: "post", scenario: prev.scenario } : prev,
-    );
+  const handleLiveEnd = useCallback((sessionId) => {
+    setOverlay((prev) => {
+      if (prev?.kind !== "live") return prev;
+      if (sessionId == null) return null;
+      return { kind: "post", scenario: prev.scenario, sessionId };
+    });
   }, []);
 
-  const handlePostSave = useCallback(() => {
+  const handlePostSave = useCallback(async () => {
     setOverlay(null);
-  }, []);
+    try {
+      await refetchAll();
+    } catch {
+      // error surfaces via existing error banner
+    }
+  }, [refetchAll]);
 
   const openScenarioCreate = useCallback(() => {
     setOverlay({ kind: "scenario-editor", scenario: null });
@@ -151,7 +158,11 @@ export default function App() {
         />
       )}
       {overlay?.kind === "post" && (
-        <PostSession scenario={overlay.scenario} onSave={handlePostSave} />
+        <PostSession
+          scenario={overlay.scenario}
+          sessionId={overlay.sessionId}
+          onSave={handlePostSave}
+        />
       )}
     </div>
   );
