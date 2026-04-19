@@ -1,4 +1,15 @@
+from enum import StrEnum
+
 import aiosqlite
+
+
+class SessionStatus(StrEnum):
+    ACTIVE = "active"
+    PENDING = "pending"
+    JUDGED = "judged"
+    COMPLETE = "complete"
+    FAILED = "failed"
+
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS scenarios (

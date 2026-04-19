@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { assessSession } from "../lib/api.js";
 import { formatDuration } from "../lib/format.js";
 
 const ASSESSMENTS = [
@@ -9,8 +10,23 @@ const ASSESSMENTS = [
   { value: 3, emoji: "😎", label: "fluido" },
 ];
 
-export default function PostSession({ scenario, onSave }) {
+export default function PostSession({ scenario, sessionId, onSave }) {
   const [assessment, setAssessment] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSave = async () => {
+    if (assessment == null || sessionId == null) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await assessSession(sessionId, { self_assessment: assessment });
+      onSave();
+    } catch (err) {
+      setError(err.message || "no se pudo guardar");
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="overlay post-screen">
@@ -36,6 +52,7 @@ export default function PostSession({ scenario, onSave }) {
               key={a.value}
               className={`sa-btn${assessment === a.value ? ` sel-${a.value}` : ""}`}
               onClick={() => setAssessment(a.value)}
+              disabled={saving}
             >
               <span className="sa-emoji">{a.emoji}</span>
               {a.label}
@@ -53,8 +70,14 @@ export default function PostSession({ scenario, onSave }) {
           ))}
         </div>
 
-        <button className="save-btn" onClick={onSave}>
-          guardar sesión
+        {error && <div className="post-error">{error}</div>}
+
+        <button
+          className="save-btn"
+          onClick={handleSave}
+          disabled={assessment == null || saving || sessionId == null}
+        >
+          {saving ? "guardando…" : "guardar sesión"}
         </button>
       </div>
     </div>

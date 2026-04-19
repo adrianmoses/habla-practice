@@ -1,3 +1,4 @@
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -12,9 +13,13 @@ from habla.db.schema import create_all
 from habla.db.seed import seed_if_empty
 from habla.routes import chunks as chunks_routes
 from habla.routes import scenarios as scenarios_routes
+from habla.routes import sessions as sessions_routes
+from habla.routes import ws as ws_routes
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FRONTEND_DIST = REPO_ROOT / "frontend" / "dist"
+
+log = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -23,6 +28,22 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await create_all(conn)
     await seed_if_empty(conn)
     app.state.db = conn
+    app.state.active_ws = {}
+
+    # Smart-turn + Silero VAD models loaded once at startup; shared across sessions.
+    # Guarded so tests and HTTP-only flows can run without Pipecat installed.
+    app.state.smart_turn = None
+    app.state.vad = None
+    try:
+        from pipecat.audio.turn.smart_turn.local_smart_turn_v3 import LocalSmartTurnAnalyzerV3
+        from pipecat.audio.vad.silero import SileroVADAnalyzer
+
+        app.state.smart_turn = LocalSmartTurnAnalyzerV3()
+        app.state.vad = SileroVADAnalyzer()
+        log.info("voice analyzers loaded")
+    except ImportError:
+        log.warning("pipecat not installed — voice sessions disabled")
+
     try:
         yield
     finally:
@@ -33,6 +54,8 @@ app = FastAPI(lifespan=lifespan, title="Habla Practice")
 
 app.include_router(scenarios_routes.router, prefix="/api")
 app.include_router(chunks_routes.router, prefix="/api")
+app.include_router(sessions_routes.router, prefix="/api")
+app.include_router(ws_routes.router)
 
 
 if FRONTEND_DIST.exists():
