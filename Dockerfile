@@ -50,5 +50,7 @@ FROM python-base AS runtime
 COPY backend/src ./src
 RUN uv sync --frozen --no-dev
 COPY --from=frontend-build /app/frontend/dist /app/frontend/dist
+# agent/prompt.py reads docs/prompts/agent-system.md at import time; missing file crashes boot.
+COPY docs/prompts /app/docs/prompts
 EXPOSE 3000
 CMD ["uv", "run", "--no-sync", "uvicorn", "habla.main:app", "--host", "0.0.0.0", "--port", "3000"]
