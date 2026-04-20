@@ -34,6 +34,22 @@ class SessionAssess(BaseModel):
     self_assessment: int = Field(ge=0, le=3)
 
 
+class ScenarioRef(BaseModel):
+    id: int
+    slug: str
+    name: str
+    icon: str
+
+
+class SessionListItem(BaseModel):
+    id: int
+    scenario: ScenarioRef
+    ended_at: str
+    duration_sec: int | None
+    self_assessment: int | None
+    analysis_status: str
+
+
 async def _reconcile_active(conn: aiosqlite.Connection, active_ws: dict) -> int | None:
     """Return the session_id that should block a new start, or None if clear.
 
@@ -93,6 +109,34 @@ async def start_session(request: Request, payload: SessionStart, conn: DbDep) ->
     await conn.commit()
 
     return SessionStartOut(session_id=session_id, ws_url=f"/ws/session/{session_id}")
+
+
+@router.get("/sessions", response_model=list[SessionListItem])
+async def list_sessions(conn: DbDep, limit: int = 20) -> list[SessionListItem]:
+    limit = max(1, min(limit, 100))
+    cur = await conn.execute(
+        "SELECT s.id, s.ended_at, s.duration_sec, s.self_assessment, s.analysis_status, "
+        "       sc.id AS scenario_id, sc.slug, sc.name, sc.icon "
+        "FROM sessions s JOIN scenarios sc ON s.scenario_id = sc.id "
+        "WHERE s.ended_at IS NOT NULL "
+        "ORDER BY s.ended_at DESC "
+        "LIMIT ?",
+        (limit,),
+    )
+    rows = await cur.fetchall()
+    return [
+        SessionListItem(
+            id=r["id"],
+            scenario=ScenarioRef(
+                id=r["scenario_id"], slug=r["slug"], name=r["name"], icon=r["icon"]
+            ),
+            ended_at=r["ended_at"],
+            duration_sec=r["duration_sec"],
+            self_assessment=r["self_assessment"],
+            analysis_status=r["analysis_status"],
+        )
+        for r in rows
+    ]
 
 
 @router.post("/sessions/{session_id}/assess", status_code=204)

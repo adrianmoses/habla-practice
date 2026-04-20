@@ -15,6 +15,8 @@ export default function App() {
   const [overlay, setOverlay] = useState(null);
   const [scenarios, setScenarios] = useState([]);
   const [chunks, setChunks] = useState([]);
+  const [streak, setStreak] = useState(null);
+  const [sessions, setSessions] = useState([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState(null);
   const [durationSec, setDurationSec] = useState(600);
   const [loading, setLoading] = useState(true);
@@ -22,11 +24,44 @@ export default function App() {
 
   const refetchAll = useCallback(async () => {
     try {
+      const [s, c, st, se] = await Promise.all([
+        api.listScenarios(),
+        api.listChunks(),
+        api.getStreak(),
+        api.listSessions(),
+      ]);
+      setScenarios(s);
+      setChunks(c);
+      setStreak(st);
+      setSessions(se);
+      setError(null);
+      return { scenarios: s, chunks: c, streak: st, sessions: se };
+    } catch (err) {
+      setError(err.message || "Error al cargar datos");
+      throw err;
+    }
+  }, []);
+
+  // Scenario CRUD doesn't touch sessions/streak; chunk edits flow into the
+  // scenarios payload (scenarios embed their chunks), so chunk changes refetch
+  // both. Only post-session save needs the streak+sessions roundtrip.
+  const refetchScenariosAndChunks = useCallback(async () => {
+    try {
       const [s, c] = await Promise.all([api.listScenarios(), api.listChunks()]);
       setScenarios(s);
       setChunks(c);
       setError(null);
-      return { scenarios: s, chunks: c };
+    } catch (err) {
+      setError(err.message || "Error al cargar datos");
+      throw err;
+    }
+  }, []);
+
+  const refetchScenarios = useCallback(async () => {
+    try {
+      const s = await api.listScenarios();
+      setScenarios(s);
+      setError(null);
     } catch (err) {
       setError(err.message || "Error al cargar datos");
       throw err;
@@ -95,30 +130,30 @@ export default function App() {
 
   const handleScenarioCreated = useCallback(
     async (created) => {
-      await refetchAll();
+      await refetchScenarios();
       setSelectedScenarioId(created.id);
       setOverlay(null);
     },
-    [refetchAll],
+    [refetchScenarios],
   );
 
   const handleScenarioUpdated = useCallback(async () => {
-    await refetchAll();
+    await refetchScenarios();
     setOverlay(null);
-  }, [refetchAll]);
+  }, [refetchScenarios]);
 
   const handleScenarioDeleted = useCallback(async () => {
-    await refetchAll();
+    await refetchScenarios();
     setOverlay(null);
-  }, [refetchAll]);
+  }, [refetchScenarios]);
 
   const handleChunksChanged = useCallback(async () => {
-    await refetchAll();
-  }, [refetchAll]);
+    await refetchScenariosAndChunks();
+  }, [refetchScenariosAndChunks]);
 
   return (
     <div className="shell">
-      <TopBar streak={null} />
+      <TopBar streak={streak?.current_streak ?? null} />
       <TabNav activeTab={activeTab} onChange={setActiveTab} />
       <div className="content">
         {loading && <div className="content-loading">cargando…</div>}
@@ -133,12 +168,15 @@ export default function App() {
             durationSec={durationSec}
             onChangeDuration={setDurationSec}
             onStart={handleStart}
+            streak={streak}
           />
         )}
         {!loading && !error && activeTab === "frases" && (
           <Frases chunks={chunks} onChanged={handleChunksChanged} />
         )}
-        {!loading && !error && activeTab === "historial" && <Historial />}
+        {!loading && !error && activeTab === "historial" && (
+          <Historial streak={streak} sessions={sessions} />
+        )}
       </div>
       {overlay?.kind === "scenario-editor" && (
         <ScenarioEditor

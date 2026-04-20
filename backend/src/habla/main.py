@@ -14,6 +14,7 @@ from habla.db.seed import seed_if_empty
 from habla.routes import chunks as chunks_routes
 from habla.routes import scenarios as scenarios_routes
 from habla.routes import sessions as sessions_routes
+from habla.routes import streak as streak_routes
 from habla.routes import ws as ws_routes
 from habla.util import iso_now
 
@@ -72,6 +73,7 @@ app = FastAPI(lifespan=lifespan, title="Habla Practice")
 app.include_router(scenarios_routes.router, prefix="/api")
 app.include_router(chunks_routes.router, prefix="/api")
 app.include_router(sessions_routes.router, prefix="/api")
+app.include_router(streak_routes.router, prefix="/api")
 app.include_router(ws_routes.router)
 
 

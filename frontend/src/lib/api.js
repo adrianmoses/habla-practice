@@ -82,3 +82,11 @@ export function assessSession(id, { self_assessment }) {
     body: JSON.stringify({ self_assessment }),
   });
 }
+
+export function getStreak() {
+  return request("/api/streak");
+}
+
+export function listSessions({ limit = 20 } = {}) {
+  return request(`/api/sessions?limit=${limit}`);
+}
