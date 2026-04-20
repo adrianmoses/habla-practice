@@ -16,23 +16,27 @@ export default function SesionHome({
   durationSec,
   onChangeDuration,
   onStart,
+  streak,
 }) {
+  const weekCount = streak?.sessions_this_week ?? "—";
+  const totalReps = streak?.total_reps ?? "—";
+  const dueToday = streak?.due_today_count ?? "—";
   return (
     <div>
       <div className="stats">
         <div className="stat">
           <div className="stat-l">esta semana</div>
-          <div className="stat-v">—</div>
+          <div className="stat-v">{weekCount}</div>
           <div className="stat-s">sesiones</div>
         </div>
         <div className="stat">
           <div className="stat-l">frases usadas</div>
-          <div className="stat-v">—</div>
+          <div className="stat-v">{totalReps}</div>
           <div className="stat-s">repeticiones</div>
         </div>
         <div className="stat">
           <div className="stat-l">pendientes hoy</div>
-          <div className="stat-v">—</div>
+          <div className="stat-v">{dueToday}</div>
           <div className="stat-s">escenarios</div>
         </div>
       </div>
