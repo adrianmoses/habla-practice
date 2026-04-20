@@ -10,3 +10,7 @@ backend/**/__pycache__/
 backend/.ruff_cache/
 backend/.pytest_cache/
 **/*.pyc
+
+# IDE
+.idea/
+.vscode/
