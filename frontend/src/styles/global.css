@@ -682,7 +682,7 @@ button {
 }
 .hist-row {
   display: grid;
-  grid-template-columns: 28px 1fr auto auto;
+  grid-template-columns: 28px 1fr auto auto auto;
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
@@ -690,6 +690,11 @@ button {
   border: 0.5px solid var(--border-med);
   border-radius: var(--radius);
   font-size: 13px;
+}
+.hist-ratio {
+  color: var(--text-3);
+  font-size: 11px;
+  font-family: var(--mono);
 }
 .hist-icon {
   font-size: 18px;
@@ -1116,6 +1121,22 @@ button {
   background: var(--surface-2);
   color: var(--text-3);
   font-size: 9px;
+}
+.pc-no {
+  background: var(--red-light);
+  color: var(--red);
+}
+.pc-row {
+  flex-wrap: wrap;
+}
+.pc-evidence {
+  flex-basis: 100%;
+  margin-top: 6px;
+  padding-left: 2px;
+  font-size: 11px;
+  color: var(--text-3);
+  font-style: italic;
+  line-height: 1.4;
 }
 
 .save-btn {

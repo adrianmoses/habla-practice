@@ -43,6 +43,11 @@ export default function Historial({ streak, sessions }) {
               <span className="hist-name">{s.scenario.name}</span>
               <span className="hist-date">{relativeDate(s.ended_at)}</span>
               <span className="hist-duration">{formatDuration(s.duration_sec ?? 0)} min</span>
+              <span className="hist-ratio">
+                {s.deployed_count != null
+                  ? `${s.deployed_count} / ${s.chunk_count} frases`
+                  : "— frases"}
+              </span>
             </div>
           ))
         )}

@@ -1,0 +1,13 @@
+{
+  "slug": "bar",
+  "name": "Bar de barrio",
+  "icon": "☕",
+  "chunks": [
+    {"text_es": "Ponme un cortado", "gloss_es": "pídelo en barra", "tags": "bar"},
+    {"text_es": "¿Qué me recomiendas?", "gloss_es": "abrir conversación", "tags": "bar,social"},
+    {"text_es": "¿Me cobras, por favor?", "gloss_es": "pedir la cuenta", "tags": "bar"},
+    {"text_es": "Está riquísimo", "gloss_es": "elogio breve", "tags": "social"},
+    {"text_es": "Qué frío hace, ¿no?", "gloss_es": "small talk del tiempo", "tags": "social,calle"},
+    {"text_es": "Hasta luego, gracias", "gloss_es": "despedida cortés", "tags": "social"}
+  ]
+}
