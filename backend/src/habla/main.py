@@ -1,3 +1,5 @@
+import asyncio
+import contextlib
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -7,6 +9,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from habla.analysis.queue import analysis_pending_event, run_worker
 from habla.config import settings
 from habla.db.connection import close_db, open_db
 from habla.db.schema import SessionStatus, create_all
@@ -62,9 +65,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     except ImportError:
         log.warning("pipecat not installed — voice sessions disabled")
 
+    worker_task = asyncio.create_task(run_worker(conn), name="analysis-worker")
+    app.state.analysis_worker = worker_task
+    # Sweep on boot in case a prior process left assessed-but-unjudged rows behind.
+    analysis_pending_event.set()
+
     try:
         yield
     finally:
+        worker_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await worker_task
         await close_db(conn)
 
 

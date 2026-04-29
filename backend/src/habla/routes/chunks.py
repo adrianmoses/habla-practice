@@ -39,7 +39,12 @@ DbDep = Annotated[aiosqlite.Connection, Depends(get_db)]
 
 async def _load_chunk(conn: aiosqlite.Connection, chunk_id: int) -> ChunkOut:
     cur = await conn.execute(
-        "SELECT id, text_es, gloss_es, tags, created_at FROM chunks WHERE id = ?",
+        "SELECT c.id, c.text_es, c.gloss_es, c.tags, c.created_at, "
+        "       COALESCE(SUM(d.deployed), 0) AS rep_count "
+        "FROM chunks c "
+        "LEFT JOIN chunk_deployments d ON d.chunk_id = c.id "
+        "WHERE c.id = ? "
+        "GROUP BY c.id",
         (chunk_id,),
     )
     row = await cur.fetchone()
@@ -50,7 +55,7 @@ async def _load_chunk(conn: aiosqlite.Connection, chunk_id: int) -> ChunkOut:
         text_es=row["text_es"],
         gloss_es=row["gloss_es"],
         tags=_split_tags(row["tags"]),
-        rep_count=0,  # Phase 5 fills from SUM(chunk_deployments.deployed)
+        rep_count=row["rep_count"],
         created_at=row["created_at"],
     )
 
@@ -58,7 +63,12 @@ async def _load_chunk(conn: aiosqlite.Connection, chunk_id: int) -> ChunkOut:
 @router.get("/chunks", response_model=list[ChunkOut])
 async def list_chunks(conn: DbDep) -> list[ChunkOut]:
     cur = await conn.execute(
-        "SELECT id, text_es, gloss_es, tags, created_at FROM chunks ORDER BY id"
+        "SELECT c.id, c.text_es, c.gloss_es, c.tags, c.created_at, "
+        "       COALESCE(SUM(d.deployed), 0) AS rep_count "
+        "FROM chunks c "
+        "LEFT JOIN chunk_deployments d ON d.chunk_id = c.id "
+        "GROUP BY c.id "
+        "ORDER BY c.id"
     )
     rows = await cur.fetchall()
     return [
@@ -67,7 +77,7 @@ async def list_chunks(conn: DbDep) -> list[ChunkOut]:
             text_es=row["text_es"],
             gloss_es=row["gloss_es"],
             tags=_split_tags(row["tags"]),
-            rep_count=0,
+            rep_count=row["rep_count"],
             created_at=row["created_at"],
         )
         for row in rows

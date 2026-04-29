@@ -90,3 +90,7 @@ export function getStreak() {
 export function listSessions({ limit = 20 } = {}) {
   return request(`/api/sessions?limit=${limit}`);
 }
+
+export function getSession(id) {
+  return request(`/api/sessions/${id}`);
+}

@@ -1,0 +1,12 @@
+[
+  {"role": "agent", "text": "Buenas, ¿qué te pongo?", "started_at": "2026-04-28T10:00:00Z", "ended_at": "2026-04-28T10:00:02Z"},
+  {"role": "user", "text": "Ponme un cortado, por favor.", "started_at": "2026-04-28T10:00:03Z", "ended_at": "2026-04-28T10:00:05Z"},
+  {"role": "agent", "text": "Marchando un cortado. ¿Algo más?", "started_at": "2026-04-28T10:00:06Z", "ended_at": "2026-04-28T10:00:08Z"},
+  {"role": "user", "text": "¿Qué me recomiendas para picar?", "started_at": "2026-04-28T10:00:09Z", "ended_at": "2026-04-28T10:00:11Z"},
+  {"role": "agent", "text": "La tortilla está recién hecha, te la pongo.", "started_at": "2026-04-28T10:00:12Z", "ended_at": "2026-04-28T10:00:14Z"},
+  {"role": "user", "text": "Vale, qué frío hace, ¿no? Necesito algo caliente.", "started_at": "2026-04-28T10:00:15Z", "ended_at": "2026-04-28T10:00:18Z"},
+  {"role": "agent", "text": "Sí, hace una rasca tremenda hoy.", "started_at": "2026-04-28T10:00:19Z", "ended_at": "2026-04-28T10:00:21Z"},
+  {"role": "user", "text": "¿Me cobras, por favor?", "started_at": "2026-04-28T10:00:22Z", "ended_at": "2026-04-28T10:00:24Z"},
+  {"role": "agent", "text": "Son cuatro con cincuenta. Hasta luego.", "started_at": "2026-04-28T10:00:25Z", "ended_at": "2026-04-28T10:00:27Z"},
+  {"role": "user", "text": "Gracias, hasta luego.", "started_at": "2026-04-28T10:00:28Z", "ended_at": "2026-04-28T10:00:30Z"}
+]

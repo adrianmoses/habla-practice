@@ -138,12 +138,12 @@ The whole Node backend is removed in this phase. By the end, the app boots on a 
 | 309 | Latency measurement on real Fly deploy: TTFB ≤ 700ms per turn                    | P3    | in-progress |
 | 401 | `GET /api/streak` (current streak, weekly grid, dashboard counters)              | P4    | implemented |
 | 402 | Server-side streak computation on session end                                    | P4    | implemented |
-| 501 | Analysis queue worker (asyncio, lifespan-managed, restart-durable)               | P5    | planned    |
-| 502 | Anthropic LLM-as-judge + `chunk_deployments` writes                              | P5    | planned    |
-| 503 | `docs/prompts/judge-system.md`                                                   | P5    | planned    |
-| 504 | Per-chunk rep counter surfaced in `/api/chunks`                                  | P5    | planned    |
-| 505 | Post-session UI transitions `⏳` → `✓/✗` on completion                           | P5    | planned    |
-| 506 | Pytest golden-transcript test set + queue-worker smoke test                      | P5    | planned    |
+| 501 | Analysis queue worker (asyncio, lifespan-managed, restart-durable)               | P5    | in-progress |
+| 502 | Anthropic LLM-as-judge + `chunk_deployments` writes                              | P5    | in-progress |
+| 503 | `docs/prompts/judge-system.md`                                                   | P5    | in-progress |
+| 504 | Per-chunk rep counter surfaced in `/api/chunks`                                  | P5    | in-progress |
+| 505 | Post-session UI transitions `⏳` → `✓/✗` on completion                           | P5    | in-progress |
+| 506 | Pytest golden-transcript test set + queue-worker smoke test                      | P5    | in-progress |
 | 601 | SM-2 implementation on `scenario_srs`                                            | P6    | planned    |
 | 602 | Due-state surfacing: `repasa hoy` / `en N días` / confidence bar                 | P6    | planned    |
 | 603 | Historial confidence delta per session                                           | P6    | planned    |
@@ -181,3 +181,4 @@ Fly.io deployment + GitHub Actions deploy carry forward unchanged from the previ
 | 2026-04-19 | Phase 3 implemented on branch `feat/phase-3-pipecat-pipeline`. Decision record: [`phase-3-pipecat-pipeline/decision.md`](./phase-3-pipecat-pipeline/decision.md). Features 301–308 `in-progress` → `implemented`. Feature 309 (TTFB measurement on Fly) stays `in-progress` — deferred to first deploy. Backend now runs in Linux Docker (Pipecat can't install on Intel Mac host); `npm run dev:backend` = `docker compose up backend`. |
 | 2026-04-20 | Phase 4 spec drafted: [`phase-4-streak-dashboard/spec.md`](./phase-4-streak-dashboard/spec.md). Features 401–402 moved from `planned` → `in-progress`. |
 | 2026-04-20 | Phase 4 implemented on branch `feat/phase-4-spec`. Decision record: [`phase-4-streak-dashboard/decision.md`](./phase-4-streak-dashboard/decision.md). Features 401–402 `in-progress` → `implemented`. Also shipped `GET /api/sessions` list + Historial recent-sessions rendering (closing the Phase 3 empty-state regression). No schema / Dockerfile / dependency changes. |
+| 2026-04-28 | Phase 5 spec drafted: [`phase-5-llm-judge/spec.md`](./phase-5-llm-judge/spec.md). Features 501–506 moved from `planned` → `in-progress`. Branch `feat/phase-5-llm-judge`. |
