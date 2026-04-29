@@ -93,7 +93,9 @@ async def judge_session(conn: aiosqlite.Connection, session_id: int) -> None:
         t.get("role") == "user" and (t.get("text") or "").strip() for t in transcript
     )
     if not has_user_turn:
-        verdicts = [{"chunk_id": c.id, "deployed": False, "evidence": None} for c in scenario.chunks]
+        verdicts = [
+            {"chunk_id": c.id, "deployed": False, "evidence": None} for c in scenario.chunks
+        ]
     else:
         raw_verdicts = await _call_anthropic(scenario, transcript)
         verdicts = _validate_verdicts(raw_verdicts, scenario)
@@ -112,8 +114,7 @@ async def _call_anthropic(scenario: ScenarioOut, transcript: list[dict]) -> list
         "scenario": {
             "name": scenario.name,
             "chunks": [
-                {"id": c.id, "text_es": c.text_es, "gloss_es": c.gloss_es}
-                for c in scenario.chunks
+                {"id": c.id, "text_es": c.text_es, "gloss_es": c.gloss_es} for c in scenario.chunks
             ],
         },
         "transcript": transcript,
@@ -126,9 +127,7 @@ async def _call_anthropic(scenario: ScenarioOut, transcript: list[dict]) -> list
             system=system_prompt,
             tools=[SUBMIT_TOOL],
             tool_choice={"type": "tool", "name": "submit_judgement"},
-            messages=[
-                {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False)}
-            ],
+            messages=[{"role": "user", "content": json.dumps(user_payload, ensure_ascii=False)}],
         )
     except APIError as e:
         raise JudgeError(f"anthropic api error: {e}") from e

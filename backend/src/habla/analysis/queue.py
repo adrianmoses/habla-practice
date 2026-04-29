@@ -15,6 +15,7 @@ that survives missed nudges and crash-restart cycles.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 from typing import TYPE_CHECKING
 
@@ -33,15 +34,28 @@ analysis_pending_event = asyncio.Event()
 
 
 async def run_worker(conn: aiosqlite.Connection) -> None:
-    """Lifespan-managed loop. Cancellation-safe."""
+    """Lifespan-managed loop. Cancellation-safe.
+
+    The outer `try` is the safety net for the worker's own bugs (DB errors in
+    `_claim_next`, unexpected exceptions outside `_process_one`'s catch). Without
+    it, a single misbehaving query would kill the task silently and pending
+    sessions would never be judged. CancelledError is always re-raised so
+    lifespan shutdown still works.
+    """
     log.info("analysis worker started")
     while True:
         try:
-            await asyncio.wait_for(analysis_pending_event.wait(), timeout=POLL_TIMEOUT_SEC)
-        except TimeoutError:
-            pass  # idle sweep
-        analysis_pending_event.clear()
-        await _drain_once(conn)
+            # TimeoutError = idle sweep tick; suppressed so the loop keeps running.
+            with contextlib.suppress(TimeoutError):
+                await asyncio.wait_for(analysis_pending_event.wait(), timeout=POLL_TIMEOUT_SEC)
+            analysis_pending_event.clear()
+            await _drain_once(conn)
+        except asyncio.CancelledError:
+            log.info("analysis worker cancelled")
+            raise
+        except Exception:
+            log.exception("analysis worker tick crashed; sleeping before next attempt")
+            await asyncio.sleep(POLL_TIMEOUT_SEC)
 
 
 async def _drain_once(conn: aiosqlite.Connection) -> int:
@@ -86,8 +100,7 @@ async def _process_one(conn: aiosqlite.Connection, session_id: int) -> None:
         # failure from the worker's perspective. The retry counter caps
         # repeated misbehaviour so a poison row doesn't loop forever.
         cur = await conn.execute(
-            "UPDATE sessions SET retry_count = retry_count + 1 WHERE id = ? "
-            "RETURNING retry_count",
+            "UPDATE sessions SET retry_count = retry_count + 1 WHERE id = ? RETURNING retry_count",
             (session_id,),
         )
         row = await cur.fetchone()

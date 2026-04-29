@@ -75,9 +75,7 @@ async def _seed_session(
 
 def _fake_message(verdicts: list[dict]) -> Any:
     """Build a fake Anthropic Message-shaped object with one tool_use block."""
-    block = SimpleNamespace(
-        type="tool_use", name="submit_judgement", input={"verdicts": verdicts}
-    )
+    block = SimpleNamespace(type="tool_use", name="submit_judgement", input={"verdicts": verdicts})
     return SimpleNamespace(content=[block])
 
 
@@ -91,9 +89,7 @@ def _patch_anthropic(
     else:
         create.return_value = return_value
     fake_client = SimpleNamespace(messages=SimpleNamespace(create=create))
-    return patch(
-        "habla.analysis.judge.AsyncAnthropic", return_value=fake_client
-    ), create
+    return patch("habla.analysis.judge.AsyncAnthropic", return_value=fake_client), create
 
 
 def _patch_settings_key():
@@ -225,8 +221,7 @@ async def test_judge_fills_missing_chunk_id(db: aiosqlite.Connection) -> None:
         await judge_session(db, session_id)
 
     cur = await db.execute(
-        "SELECT chunk_id, deployed FROM chunk_deployments WHERE session_id = ? "
-        "ORDER BY chunk_id",
+        "SELECT chunk_id, deployed FROM chunk_deployments WHERE session_id = ? ORDER BY chunk_id",
         (session_id,),
     )
     rows = await cur.fetchall()

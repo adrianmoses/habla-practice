@@ -115,9 +115,7 @@ async def test_drain_marks_failed_after_max_retries(db: aiosqlite.Connection) ->
     ):
         await queue_mod._drain_once(db)
 
-    cur = await db.execute(
-        "SELECT analysis_status, retry_count FROM sessions WHERE id = ?", (sid,)
-    )
+    cur = await db.execute("SELECT analysis_status, retry_count FROM sessions WHERE id = ?", (sid,))
     row = await cur.fetchone()
     assert row is not None
     assert row["analysis_status"] == SessionStatus.FAILED
@@ -150,9 +148,7 @@ async def test_drain_recovers_after_transient_failure(db: aiosqlite.Connection) 
     ):
         await queue_mod._drain_once(db)
 
-    cur = await db.execute(
-        "SELECT analysis_status, retry_count FROM sessions WHERE id = ?", (sid,)
-    )
+    cur = await db.execute("SELECT analysis_status, retry_count FROM sessions WHERE id = ?", (sid,))
     row = await cur.fetchone()
     assert row is not None
     assert row["analysis_status"] == SessionStatus.JUDGED
