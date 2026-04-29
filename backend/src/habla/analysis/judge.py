@@ -13,9 +13,10 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, cast
 
 from anthropic import APIError, AsyncAnthropic
+from anthropic.types import ToolParam, ToolUseBlock
 
 from habla.config import settings
 from habla.db.schema import SessionStatus
@@ -34,7 +35,7 @@ EVIDENCE_MAX_LEN = 500
 _PROMPT_PATH = Path(__file__).resolve().parents[3].parent / "docs" / "prompts" / "judge-system.md"
 
 
-SUBMIT_TOOL: dict[str, Any] = {
+SUBMIT_TOOL: ToolParam = {
     "name": "submit_judgement",
     "description": (
         "Submit a verdict for each scenario chunk: whether the student deployed it "
@@ -133,9 +134,9 @@ async def _call_anthropic(scenario: ScenarioOut, transcript: list[dict]) -> list
         raise JudgeError(f"anthropic api error: {e}") from e
 
     for block in resp.content:
-        if getattr(block, "type", None) == "tool_use" and block.name == "submit_judgement":
-            payload = block.input or {}
-            return list(payload.get("verdicts", []))
+        if isinstance(block, ToolUseBlock) and block.name == "submit_judgement":
+            verdicts = block.input.get("verdicts", []) if block.input else []
+            return cast(list[dict], verdicts)
     raise JudgeError("no submit_judgement tool_use block in response")
 
 

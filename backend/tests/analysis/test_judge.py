@@ -17,6 +17,7 @@ from unittest.mock import AsyncMock, patch
 import aiosqlite
 import pytest
 from anthropic import APIError
+from anthropic.types import ToolUseBlock
 
 from habla.analysis.judge import JudgeError, judge_session
 from habla.db.schema import SessionStatus
@@ -74,8 +75,15 @@ async def _seed_session(
 
 
 def _fake_message(verdicts: list[dict]) -> Any:
-    """Build a fake Anthropic Message-shaped object with one tool_use block."""
-    block = SimpleNamespace(type="tool_use", name="submit_judgement", input={"verdicts": verdicts})
+    """Build a fake Anthropic Message-shaped object with one tool_use block.
+
+    Uses a real `ToolUseBlock` so the production code's `isinstance` narrowing
+    succeeds. Other Message fields aren't read by the judge — `SimpleNamespace`
+    is enough for the outer wrapper.
+    """
+    block = ToolUseBlock(
+        id="toolu_test", type="tool_use", name="submit_judgement", input={"verdicts": verdicts}
+    )
     return SimpleNamespace(content=[block])
 
 
@@ -123,7 +131,7 @@ async def test_judge_happy_path(db: aiosqlite.Connection) -> None:
         "WHERE session_id = ? ORDER BY chunk_id",
         (session_id,),
     )
-    rows = await cur.fetchall()
+    rows = list(await cur.fetchall())
     assert len(rows) == 6
     deployed = {r["chunk_id"]: r["deployed"] for r in rows}
     assert sum(deployed.values()) == 4
@@ -224,7 +232,7 @@ async def test_judge_fills_missing_chunk_id(db: aiosqlite.Connection) -> None:
         "SELECT chunk_id, deployed FROM chunk_deployments WHERE session_id = ? ORDER BY chunk_id",
         (session_id,),
     )
-    rows = await cur.fetchall()
+    rows = list(await cur.fetchall())
     assert len(rows) == len(chunk_ids)
     deployed = {r["chunk_id"]: r["deployed"] for r in rows}
     for cid in chunk_ids[3:]:
